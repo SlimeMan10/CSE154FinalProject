@@ -147,10 +147,6 @@ Status Code: 500 {
     "measurements": {
         "weight": 165,
         "bodyFat": 15,
-        "muscleGroups": {
-            "chest": 42,
-            "biceps": 15
-        }
     },
     "supplements": [
         {
@@ -180,7 +176,6 @@ Status Code: 500 {
                 "name": "Muscle Gain Stack",
                 "products": ["whey123", "creatine456"],
                 "totalPrice": 79.98,
-                "stackDiscount": 10
             }
         ]
     }
@@ -193,65 +188,4 @@ Status Code: 400 {
 }
 Status Code: 500 {
     "error": "Error creating fitness profile"
-}
-
-**## Stack Builder**
-**Request Format:** "/stacks"
-**Request Type:** POST
-**Returned Data Format**: JSON
-**Description:** Create and manage supplement stacks.
-
-**Example Request:**
-```json
-{
-    "userId": "user123",
-    "name": "Muscle Gain Stack",
-    "products": [
-        {
-            "productId": "whey123",
-            "quantity": 1
-        },
-        {
-            "productId": "creatine456",
-            "quantity": 1
-        }
-    ],
-    "subscription": true
-}
-```
-
-**Example Response:**
-```json
-{
-    "stackId": "stack789",
-    "name": "Muscle Gain Stack",
-    "products": [
-        {
-            "productId": "whey123",
-            "name": "Gold Standard Whey",
-            "quantity": 1,
-            "price": 59.99
-        },
-        {
-            "productId": "creatine456",
-            "name": "Creatine Monohydrate",
-            "quantity": 1,
-            "price": 19.99
-        }
-    ],
-    "pricing": {
-        "subtotal": 79.98,
-        "stackDiscount": -8.00,
-        "subscriptionDiscount": -7.20,
-        "total": 64.78
-    }
-}
-```
-
-**Error Handling:**
-Status Code: 400 {
-    "error": "Invalid stack combination"
-}
-Status Code: 500 {
-    "error": "Error creating stack"
 }
