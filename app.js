@@ -32,6 +32,7 @@ app.post("/addProduct", async function(req, res) {
  let stock = req.body.stock;
  let image = req.body.image;
  let type = req.body.type;
+ console.log(req.body);
  if (product_id && name && description && price && stock && image && type) {
    try {
      const query = "INSERT INTO Products (product_id, name, description, price, stock, image, type) VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -43,6 +44,7 @@ app.post("/addProduct", async function(req, res) {
      console.error("Database error:", err);
      res.status(SERVERERROR).json({"error": serverError});
    }
+   //make sure you do not have any spaces in the form fields
  } else {
    let missing = [];
    if (!product_id) missing.push("product_id");
@@ -227,36 +229,36 @@ app.get("/transactions", async function (req, res) {
 //Additional Feature 1: any logged in user can give feedback on 1-5
 app.post("/review", async function(req, res) {
   const username = req.body.username;
+  const product_id = req.body.product_id;
   const rating = req.body.rating;
   const comment = req.body.comment;
-  const product_id = req.body.product_id;
 
   try {
     const db = await getDBConnection();
     await db.run("BEGIN TRANSACTION");
 
-    const insertQuery = "INSERT INTO Reviews (rating, comment, username, product_id) VALUES (?, ?, ?, ?)";
-    await db.run(insertQuery, [rating, comment, username, product_id]);
+    // Generate a new review_id
+    const reviewIdQuery = "SELECT MAX(review_id) + 1 AS next_review_id FROM Reviews";
+    const { next_review_id } = await db.get(reviewIdQuery);
 
-    const updateQuery = "UPDATE Reviews SET total_ratings = total_ratings + 1 WHERE product_id = ?";
-    await db.run(updateQuery, [product_id]);
+    // Insert the new review
+    const insertQuery = "INSERT INTO Reviews (review_id, username, product_id, rating, comment) VALUES (?, ?, ?, ?, ?)";
+    await db.run(insertQuery, [next_review_id, username, product_id, rating, comment]);
 
-    const numberQuery = "SELECT cumulative_rating, total_ratings FROM Reviews WHERE product_id = ?";
-    const numberResult = await db.get(numberQuery, [product_id]);
-
-    const newCumulativeRating = numberResult.cumulative_rating + rating;
-    const newTotalRatings = numberResult.total_ratings;
-    const averageRating = newCumulativeRating / newTotalRatings;
-
-    const finalQuery = "UPDATE Reviews SET cumulative_rating = ? WHERE product_id = ?";
-    await db.run(finalQuery, [newCumulativeRating, product_id]);
+    // Calculate the new average rating for the product
+    const averageRatingQuery = "SELECT AVG(rating) AS average_rating FROM Reviews WHERE product_id = ?";
+    const { average_rating } = await db.get(averageRatingQuery, [product_id]);
 
     await db.run("COMMIT");
     await db.close();
 
-    res.json({ message: "Review added successfully" });
+    res.json({ message: "Review added successfully", averageRating: Number(average_rating.toFixed(2)) });
   } catch (err) {
-    await db.run("ROLLBACK");
+    if (db) {
+      await db.run("ROLLBACK");
+      await db.close();
+    }
+    console.error("Error adding review:", err);
     res.status(SERVERERROR).type("text").send(serverError);
   }
 });

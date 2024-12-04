@@ -13,7 +13,7 @@ CREATE TABLE Products (
   stock INT NOT NULL,
   image TEXT NOT NULL,
   type VARCHAR(255) NOT NULL,
-  reviews INT,
+  reviews INT
 );
 
 CREATE TABLE Orders (
@@ -27,13 +27,11 @@ CREATE TABLE Orders (
 
 /*junction table between all the tables*/
 CREATE TABLE Reviews (
-  review_id INT PRIMARY KEY,
-  rating DECIMAL(3,2) NOT NULL CHECK (rating >= 1 AND rating <= 5),
-  comment TEXT,
+  review_id INTEGER PRIMARY KEY,
   username VARCHAR(50),
   product_id INT,
-  total_ratings INT DEFAULT 0,
-  cumulative_rating DECIMAL(3,2) DEFAULT 0,
+  rating DECIMAL(3,2) NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  comment TEXT,
   FOREIGN KEY (username) REFERENCES Users(username),
-  FOREIGN KEY (product_id) REFERENCES Products (product_id)
+  FOREIGN KEY (product_id) REFERENCES Products(product_id)
 );
