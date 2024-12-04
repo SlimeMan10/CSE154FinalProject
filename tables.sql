@@ -32,6 +32,8 @@ CREATE TABLE Reviews (
   product_id INT,
   rating DECIMAL(3,2) NOT NULL CHECK (rating >= 1 AND rating <= 5),
   comment TEXT,
+  average_rating DECIMAL(3,2),
+  num_ratings INT,
   FOREIGN KEY (username) REFERENCES Users(username),
   FOREIGN KEY (product_id) REFERENCES Products(product_id)
 );

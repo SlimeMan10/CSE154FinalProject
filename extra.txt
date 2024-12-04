@@ -2,3 +2,15 @@ User for testing:
 Username: 123
 Password: 123
 email: 123
+
+TO CHECK Users
+SELECT * FROM Users;
+
+TO CHECK Products
+SELECT * FROM Products;
+
+TO CHECK Orders
+SELECT * FROM Orders;
+
+TO CHECK REVIEWS
+SELECT * FROM Reviews;

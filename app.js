@@ -105,9 +105,13 @@ app.get("/getProducts", async function (req, res) {
   const minPrice = req.query.minPrice;
   try {
     const db = await getDBConnection();
-    let query = "SELECT p.name, p.description, p.price, p.stock, p.image, p.product_id, p.type, AVG(r.cumulative_rating) AS average_rating " +
+    let query = "SELECT p.name, p.description, p.price, p.stock, p.image, p.product_id, p.type, " +
+                "r.average_rating, " +
+                "r.num_ratings AS total_ratings, " +
+                "u.username AS review_username " +
                 "FROM Products p " +
-                "LEFT JOIN Reviews r ON r.product_id = p.product_id";
+                "LEFT JOIN Reviews r ON r.product_id = p.product_id " +
+                "LEFT JOIN Users u ON r.username = u.username ";
     let params = [];
     if (name || type || minPrice) {
       let conditions = [];
@@ -242,17 +246,21 @@ app.post("/review", async function(req, res) {
     const { next_review_id } = await db.get(reviewIdQuery);
 
     // Insert the new review
-    const insertQuery = "INSERT INTO Reviews (review_id, username, product_id, rating, comment) VALUES (?, ?, ?, ?, ?)";
+    const insertQuery = "INSERT INTO Reviews (review_id, username, product_id, rating, comment, num_ratings) VALUES (?, ?, ?, ?, ?, 1)";
     await db.run(insertQuery, [next_review_id, username, product_id, rating, comment]);
 
     // Calculate the new average rating for the product
-    const averageRatingQuery = "SELECT AVG(rating) AS average_rating FROM Reviews WHERE product_id = ?";
-    const { average_rating } = await db.get(averageRatingQuery, [product_id]);
+    const averageRatingQuery = "SELECT AVG(rating) AS average_rating, COUNT(review_id) AS num_ratings FROM Reviews WHERE product_id = ?";
+    const { average_rating, num_ratings } = await db.get(averageRatingQuery, [product_id]);
+
+    // Update the average_rating and num_ratings columns in the Reviews table
+    const updateQuery = "UPDATE Reviews SET average_rating = ?, num_ratings = ? WHERE product_id = ?";
+    await db.run(updateQuery, [average_rating, num_ratings, product_id]);
 
     await db.run("COMMIT");
     await db.close();
 
-    res.json({ message: "Review added successfully", averageRating: Number(average_rating.toFixed(2)) });
+    res.json({ message: "Review added successfully", averageRating: Number(average_rating.toFixed(2)), numRatings: num_ratings });
   } catch (err) {
     if (db) {
       await db.run("ROLLBACK");
