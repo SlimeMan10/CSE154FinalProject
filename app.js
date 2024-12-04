@@ -99,22 +99,28 @@ function hashPassword(password, salt) {
 
 //use this for when loading the page and just pass in the name of the product in a JSON or Form to get the exact product
 //Feature 1, 3, 5
-app.get("/getProducts", async function (req, res) {
+app.get("/getProducts", async function(req, res) {
   const name = req.query.name;
   const type = req.query.type;
   const minPrice = req.query.minPrice;
+
   try {
-    const db = await getDBConnection();
     let query = "SELECT p.name, p.description, p.price, p.stock, p.image, p.product_id, p.type, " +
-                "r.average_rating, " +
-                "r.num_ratings AS total_ratings, " +
-                "u.username AS review_username " +
+                "COALESCE(AVG(r.rating), 0) AS average_rating, " +
+                "COALESCE(COUNT(r.review_id), 0) AS total_ratings, " +
+                "GROUP_CONCAT(DISTINCT u.username) AS review_usernames " +
                 "FROM Products p " +
                 "LEFT JOIN Reviews r ON r.product_id = p.product_id " +
-                "LEFT JOIN Users u ON r.username = u.username ";
-    let params = [];
+                "LEFT JOIN Users u ON r.username = u.username " +
+                "GROUP BY p.product_id";
+
+    const db = await getDBConnection();
+    let data;
+
     if (name || type || minPrice) {
       let conditions = [];
+      let params = [];
+
       if (name) {
         conditions.push("LOWER(p.name) LIKE LOWER(?)");
         params.push(`%${name}%`);
@@ -127,12 +133,33 @@ app.get("/getProducts", async function (req, res) {
         conditions.push("p.price >= ?");
         params.push(minPrice);
       }
+
       if (conditions.length > 0) {
         query += " WHERE " + conditions.join(" AND ");
+        data = await db.all(query, params);
+      } else {
+        data = await db.all(query);
       }
+    } else {
+      data = await db.all(query);
     }
-    query += " GROUP BY p.product_id";
-    const data = await db.all(query, params);
+
+    await db.close();
+    res.json(data);
+  } catch (err) {
+    res.status(SERVERERROR).type('text').send(serverError);
+  }
+});
+
+//returns all the products, make sure to round when recieving it in index.js
+app.get("/getAllProducts", async function(req, res) {
+  try {
+    const db = await getDBConnection();
+    const query = "SELECT p.product_id, p.name, p.description, p.price, p.stock, p.image, p.type, r.average_rating, r.num_ratings " +
+                  "FROM Products p " +
+                  "JOIN Reviews r ON r.product_id = p.product_id " +
+                  "GROUP BY p.product_id";
+    const data = await db.all(query);
     await db.close();
     res.json(data);
   } catch (err) {
@@ -236,11 +263,10 @@ app.post("/review", async function(req, res) {
   const product_id = req.body.product_id;
   const rating = req.body.rating;
   const comment = req.body.comment;
-
+  let db = null;
   try {
-    const db = await getDBConnection();
+    db = await getDBConnection();
     await db.run("BEGIN TRANSACTION");
-
     // Generate a new review_id
     const reviewIdQuery = "SELECT MAX(review_id) + 1 AS next_review_id FROM Reviews";
     const { next_review_id } = await db.get(reviewIdQuery);

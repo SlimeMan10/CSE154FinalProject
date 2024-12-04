@@ -13,7 +13,6 @@ CREATE TABLE Products (
   stock INT NOT NULL,
   image TEXT NOT NULL,
   type VARCHAR(255) NOT NULL,
-  reviews INT
 );
 
 CREATE TABLE Orders (
