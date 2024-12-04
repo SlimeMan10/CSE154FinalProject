@@ -19,10 +19,8 @@ CREATE TABLE Products (
 CREATE TABLE Orders (
   order_id INT PRIMARY KEY,
   username VARCHAR(50),
-  confirmation_code TEXT UNIQUE NOT NULL,
   total_amount DECIMAL(5, 2) NOT NULL,
   product_id INT,
-  status TEXT NOT NULL,
   FOREIGN KEY (username) REFERENCES Users (username) ON DELETE SET NULL,
   FOREIGN KEY (product_id) REFERENCES Products (product_id)
 );
