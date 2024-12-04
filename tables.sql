@@ -12,25 +12,30 @@ CREATE TABLE Products (
   price DECIMAL(5,2) NOT NULL,
   stock INT NOT NULL,
   image TEXT NOT NULL,
-  type VARCHAR(255) NOT NULL
+  type VARCHAR(255) NOT NULL,
+  reviews INT,
 );
 
 CREATE TABLE Orders (
   order_id INT PRIMARY KEY,
-  username TEXT,
+  username VARCHAR(50),
   confirmation_code TEXT UNIQUE NOT NULL,
   total_amount DECIMAL(5, 2) NOT NULL,
+  product_id INT,
   status TEXT NOT NULL,
-  FOREIGN KEY (username) REFERENCES Users (username) ON DELETE SET NULL
+  FOREIGN KEY (username) REFERENCES Users (username) ON DELETE SET NULL,
+  FOREIGN KEY (product_id) REFERENCES Products (product_id)
 );
 
 /*junction table between all the tables*/
 CREATE TABLE Reviews (
   review_id INT PRIMARY KEY,
-  rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  rating DECIMAL(3,2) NOT NULL CHECK (rating >= 1 AND rating <= 5),
   comment TEXT,
   username VARCHAR(50),
   product_id INT,
+  total_ratings INT DEFAULT 0,
+  cumulative_rating DECIMAL(3,2) DEFAULT 0,
   FOREIGN KEY (username) REFERENCES Users(username),
   FOREIGN KEY (product_id) REFERENCES Products (product_id)
 );
