@@ -9,17 +9,6 @@
     id('create-user-btn').addEventListener('click', createNewUser);
   }
 
-  async function createNewUser() {
-    let result = await createUser();
-    if (result.success) {
-      //do stuff
-    } else if (result.error) {
-      //server error handling stuff
-    } else {
-      //user already exists
-    }
-  }
-
   async function createUser() {
     try {
       let username = id('username').value;
@@ -35,10 +24,15 @@
         method: "POST",
         body: formData
       });
+
       if(!response.ok) {
         let errorText = await response.text();
+        if (errorText === "Email is already taken" || errorText === "Username is already taken") {
+          return { exists: errorText };
+        }
         return { error: errorText };
       }
+
       let data = await response.json();
       if (data.message === "User created") {
         user = username;
@@ -48,6 +42,21 @@
       }
     } catch (err) {
       return { error: "Failed to connect to server" };
+    }
+  }
+
+  async function createNewUser() {
+    let result = await createUser();
+    if (result.success) {
+      console.log("Success")
+    } else if (result.error) {
+      // Handle server errors
+      // Show error message to user
+      console.log("error");
+    } else if (result.exists) {
+      // Handle duplicate email/username
+      // Show specific message about which one is taken
+      console.log(result.exists)
     }
   }
 
