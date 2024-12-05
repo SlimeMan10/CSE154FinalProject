@@ -75,6 +75,27 @@
           <button type="button" id="create-user-btn">Create Account</button>
         </div>
       </form>
+
+      <div id="review-section" data-current-product="1">
+        <h3>Add Review</h3>
+        <form>
+          <div>
+            <label for="rating">Rating:</label>
+            <select id="rating">
+              <option value="1">1 Star</option>
+              <option value="2">2 Stars</option>
+              <option value="3">3 Stars</option>
+              <option value="4">4 Stars</option>
+              <option value="5">5 Stars</option>
+            </select>
+          </div>
+          <div>
+            <label for="comment">Comment:</label>
+            <textarea id="comment"></textarea>
+          </div>
+          <button type="button" id="submit-review-btn">Submit Review</button>
+        </form>
+      </div>
     </footer>
   </body>
 </html>
