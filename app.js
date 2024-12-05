@@ -60,24 +60,47 @@ app.post("/addProduct", async function(req, res) {
 
 //Additional Feature 4
 app.post("/newUser", async function(req, res) {
- let username = req.body.username;
- let password = req.body.password;
- let email = req.body.email;
- if (username && password && email) {
-   try {
-     const query = "INSERT INTO Users (username, email, salt, hash) VALUES (?, ?, ?, ?)";
-     const salt = generateSalt();
-     const hashedPassword = await hashPassword(password, salt);
-     const db = await getDBConnection();
-     await db.run(query, [username, email, salt, hashedPassword]);
-     await db.close();
-     res.json({"message": "User created"});
-   } catch (err) {
-     res.status(SERVERERROR).json({ "error": serverError });
-   }
- } else {
-   res.status(USERERROR).type('text').send("Must add all parameters");
- }
+  let username = req.body.username;
+  let password = req.body.password;
+  let email = req.body.email;
+
+  if (username && password && email) {
+    let db;
+    try {
+      db = await getDBConnection();
+
+      // Check email is taken
+      const emailQuery = "SELECT * FROM Users WHERE email = ?";
+      const emailResult = await db.all(emailQuery, [email]);
+      if (emailResult.length > 0) {
+        await db.close();
+        res.status(USERERROR).type('text').send("Email is already taken");
+      } else {
+        // Check if username is already taken
+        const usernameQuery = "SELECT * FROM Users WHERE username = ?";
+        const usernameResult = await db.all(usernameQuery, [username]);
+        if (usernameResult.length > 0) {
+          await db.close();
+          res.status(USERERROR).type('text').send("Username is already taken");
+        } else {
+          // Create new user
+          const query = "INSERT INTO Users (username, email, salt, hash) VALUES (?, ?, ?, ?)";
+          const salt = generateSalt();
+          const hashedPassword = await hashPassword(password, salt);
+          await db.run(query, [username, email, salt, hashedPassword]);
+          await db.close();
+          res.json({"message": "User created"});
+        }
+      }
+    } catch (err) {
+      if (db) {
+        await db.close();
+      }
+      res.status(SERVERERROR).json({ "error": serverError });
+    }
+  } else {
+    res.status(USERERROR).type('text').send("Must add all parameters");
+  }
 });
 
 function generateSalt() {
