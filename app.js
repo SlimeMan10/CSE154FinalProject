@@ -97,30 +97,24 @@ function hashPassword(password, salt) {
  return hash;
 }
 
-//use this for when loading the page and just pass in the name of the product in a JSON or Form to get the exact product
-//Feature 1, 3, 5
+//Use /getProducts?name=__?type=___?,minPrice=?
 app.get("/getProducts", async function(req, res) {
   const name = req.query.name;
   const type = req.query.type;
-  const minPrice = req.query.minPrice;
+  const maxPrice = req.query.maxPrice;
 
-  try {
-    let query = "SELECT p.name, p.description, p.price, p.stock, p.image, p.product_id, p.type, " +
-                "COALESCE(AVG(r.rating), 0) AS average_rating, " +
-                "COALESCE(COUNT(r.review_id), 0) AS total_ratings, " +
-                "GROUP_CONCAT(DISTINCT u.username) AS review_usernames " +
-                "FROM Products p " +
-                "LEFT JOIN Reviews r ON r.product_id = p.product_id " +
-                "LEFT JOIN Users u ON r.username = u.username " +
-                "GROUP BY p.product_id";
-
-    const db = await getDBConnection();
-    let data;
-
-    if (name || type || minPrice) {
+  if (name || type || maxPrice) {
+    try {
+      let query = "SELECT p.name, p.description, p.price, p.stock, p.image, p.product_id, p.type, " +
+        "COALESCE(AVG(r.rating), 0) AS average_rating, " +
+        "COALESCE(COUNT(r.review_id), 0) AS total_ratings, " +
+        "GROUP_CONCAT(DISTINCT u.username) AS review_usernames " +
+        "FROM Products p " +
+        "LEFT JOIN Reviews r ON r.product_id = p.product_id " +
+        "LEFT JOIN Users u ON r.username = u.username";
+      const db = await getDBConnection();
       let conditions = [];
       let params = [];
-
       if (name) {
         conditions.push("LOWER(p.name) LIKE LOWER(?)");
         params.push(`%${name}%`);
@@ -129,25 +123,21 @@ app.get("/getProducts", async function(req, res) {
         conditions.push("p.type = ?");
         params.push(type);
       }
-      if (minPrice) {
-        conditions.push("p.price >= ?");
-        params.push(minPrice);
+      if (maxPrice) {
+        conditions.push("p.price <= ?");
+        params.push(maxPrice);
       }
-
-      if (conditions.length > 0) {
-        query += " WHERE " + conditions.join(" AND ");
-        data = await db.all(query, params);
-      } else {
-        data = await db.all(query);
-      }
-    } else {
-      data = await db.all(query);
+      query += " WHERE " + conditions.join(" AND ");
+      query += " GROUP BY p.product_id";
+      const data = await db.all(query, params);
+      await db.close();
+      res.json(data);
+    } catch (err) {
+      console.error("Error:", err);
+      res.status(SERVERERROR).type('text').send(serverError);
     }
-
-    await db.close();
-    res.json(data);
-  } catch (err) {
-    res.status(SERVERERROR).type('text').send(serverError);
+  } else {
+    res.status(USERERROR).type('text').send("Must Have At Least One Filter");
   }
 });
 
