@@ -129,8 +129,8 @@ app.get("/getProducts", async function(req, res) {
   if (name || type || maxPrice) {
     try {
       let query = "SELECT p.name, p.description, p.price, p.stock, p.image, p.product_id, p.type, " +
-        "COALESCE(AVG(r.rating), 0) AS average_rating, " +
-        "COALESCE(COUNT(r.review_id), 0) AS total_ratings, " +
+        "r.average_rating AS average_rating, " +
+        "r.num_rating AS total_ratings, " +
         "GROUP_CONCAT(DISTINCT u.username) AS review_usernames " +
         "FROM Products p " +
         "LEFT JOIN Reviews r ON r.product_id = p.product_id " +
@@ -219,29 +219,29 @@ app.post("/purchase", async function(req, res) {
   const cost = req.body.cost;
 
   if (!username) {
-    return res.status(400).json({ error: "Username is required" });
-  }
-
-  try {
-    const db = await getDBConnection();
-    //let's check if we even have stock
-    const stockQuery = "SELECT stock FROM Products WHERE product_id = ?";
-    const stockResult = await db.get(stockQuery, [product_id]);
-    if (!stockResult || stockResult.stock <= 0) {
+   res.status(400).json({ error: "Username is required" });
+  } else {
+    try {
+      const db = await getDBConnection();
+      //let's check if we even have stock
+      const stockQuery = "SELECT stock FROM Products WHERE product_id = ?";
+      const stockResult = await db.get(stockQuery, [product_id]);
+      if (!stockResult || stockResult.stock <= 0) {
+        await db.close();
+        return res.status(400).json({ error: "Product is out of stock" });
+      }
+      const updateStockQuery = "UPDATE Products SET stock = stock - 1 WHERE product_id = ?";
+      await db.run(updateStockQuery, [product_id]);
+      // Create a new order
+      const confirmationCode = generateConfirmationCode();
+      const insertOrderQuery = "INSERT INTO Orders (order_id, product_id, username, total_amount) VALUES (?, ?, ?, ?)";
+      await db.run(insertOrderQuery, [confirmationCode, product_id, username, cost]);
       await db.close();
-      return res.status(400).json({ error: "Product is out of stock" });
+      res.json({ message: "Purchase successful", confirmationCode: confirmationCode });
+    } catch (err) {
+      console.error("Error processing purchase:", err);
+      res.status(SERVERERROR).json({ error: "An error occurred while processing the purchase" });
     }
-    const updateStockQuery = "UPDATE Products SET stock = stock - 1 WHERE product_id = ?";
-    await db.run(updateStockQuery, [product_id]);
-    // Create a new order
-    const confirmationCode = generateConfirmationCode();
-    const insertOrderQuery = "INSERT INTO Orders (order_id, product_id, username, total_amount) VALUES (?, ?, ?, ?)";
-    await db.run(insertOrderQuery, [confirmationCode, product_id, username, cost]);
-    await db.close();
-    res.json({ message: "Purchase successful", confirmationCode: confirmationCode });
-  } catch (err) {
-    console.error("Error processing purchase:", err);
-    res.status(SERVERERROR).json({ error: "An error occurred while processing the purchase" });
   }
 });
 
