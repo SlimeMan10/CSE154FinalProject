@@ -36,6 +36,7 @@
       </section>
     </main>
     <footer>
+      <!--
       <h2>Join newsletter</h2>
       <form id="newsletter">
         <input type="text" id="newsletter-input" placeholder="name@gmail.com" required>
@@ -96,6 +97,51 @@
           <button type="button" id="submit-review-btn">Submit Review</button>
         </form>
       </div>
+    -->
+    <div id="testing-section" class="testing-container">
+      <h3>Password Strength Tester</h3>
+      <div class="password-requirements">
+          <p>Password must contain:</p>
+          <ul id="password-checklist">
+              <li>At least 8 characters</li>
+              <li>One uppercase letter</li>
+              <li>One lowercase letter</li>
+              <li>One number</li>
+              <li>One special character</li>
+          </ul>
+      </div>
+      <form id="password-test-form">
+          <div class="form-group">
+              <input type="text"
+                     id="username"
+                     placeholder="Username"
+                     required>
+          </div>
+          <div class="form-group">
+              <input type="email"
+                     id="email"
+                     placeholder="Email"
+                     required>
+          </div>
+          <div class="password-input-group">
+              <input type="password"
+                     id="create-password-input-form"
+                     placeholder="Test your password strength"
+                     required>
+              <button type="button"
+                      id="toggle-password"
+                      class="password-toggle">👁️</button>
+          </div>
+          <div class="form-group">
+              <input type="password"
+                     id="verify-password-input"
+                     placeholder="Verify password"
+                     required>
+          </div>
+          <button type="button"
+                  id="create-user-btn">Create Account</button>
+      </form>
+  </div>
     </footer>
   </body>
 </html>
