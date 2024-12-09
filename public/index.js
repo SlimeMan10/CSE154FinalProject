@@ -5,6 +5,7 @@
  window.addEventListener('load', init);
 
  function init() {
+    console.log("Initiing")
     loginEvents();
     passwordEvents();
     if(id('submit-review-btn')) {
@@ -17,6 +18,107 @@
       }
     }
   }
+
+  /**
+   * This renders a product in the product-area div. 
+   * @param {string} productName - Name of the product from the database (Will
+   * be converted to lowercase AND have dashes in the name replace with spaces.
+   * Also coverts to spaces)
+   * @param {number} price - Price of the product from database
+   * @param {number} averageReviews - Average reviews, shows the rounded amount
+   * in stars ()
+   */
+  function renderProduct(productName, price, averageReviews) {
+    const productArea = document.getElementById('product-area');
+    if (productArea) {
+      const starCount = Math.floor(averageReviews);
+      const starEmoji = '⭐';
+      console.log(averageReviews - starCount)
+      const starsText = (averageReviews - starCount >= 0.5) ?
+          starEmoji.repeat(starCount) + "✨": starEmoji.repeat(starCount);
+  
+      const imgName = productName.toLowerCase().replace(/\s+/g, '-');
+      const imgSrc = `./imgs/${imgName}.jpg`;
+  
+      const productDiv = document.createElement('div');
+      productDiv.className = 'product-card';
+  
+      const img = document.createElement('img');
+      img.src = imgSrc;
+      img.alt = productName;
+      img.className = "product-image"
+  
+      const nameDiv = document.createElement('div');
+      nameDiv.className = 'product-name';
+      productName = productName
+        .split('-')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+
+      nameDiv.textContent = productName;
+
+      const starsDiv = document.createElement('div');
+      starsDiv.className = 'stars';
+      starsDiv.textContent = starsText;
+
+      const priceDiv = document.createElement('div');
+      priceDiv.className = 'price';
+      priceDiv.textContent = `From $${price} USD`;
+      productDiv.addEventListener('click', onProductClick);
+      productDiv.appendChild(img);
+      productDiv.appendChild(nameDiv);
+      productDiv.appendChild(starsDiv);
+      productDiv.appendChild(priceDiv);
+      productArea.appendChild(productDiv);
+    }
+  }
+
+  /**
+   * Handles  click event on a product card. Finds  closest product-card
+   * element and, if found, shows it as the currently selected product by calling
+   * showCurrProduct.
+   * @param {Event} event - The DOM event triggered by clicking on the product card or its children.
+   */
+  function onProductClick(event) {
+    const card = event.target.closest('.product-card');
+    if (card) {
+      showCurrProduct(card);
+    }
+  }
+
+  /**
+   * Displays a large product card and hides all other product cards.
+   * Adds buy button also to the enlarged card if it doesn't already exist.
+   * @param {HTMLElement} clickedCard -  product card element clicked and should be enlarged.
+   */
+  function showCurrProduct(clickedCard) {
+    id("product-area").classList.add('hidden');
+    id("all-products").classList.add('hidden');
+
+    const cards = document.querySelectorAll('.product-card');
+    cards.forEach(card => {
+      if (card !== clickedCard) {
+        card.classList.add('hidden');
+      }
+    });
+
+    clickedCard.classList.add('enlarged');
+
+    if (!clickedCard.querySelector('.buy-button')) {
+      const buyBtn = document.createElement('a');
+      buyBtn.href = "#"; // PUT CHECKOUT LINK HERE
+      buyBtn.textContent = "Buy Now";
+      buyBtn.classList.add('buy-button');
+      clickedCard.appendChild(buyBtn);
+    }
+  }
+
+  renderProduct("Creatine", 15.96, 4.7);
+  renderProduct("protein-powder", 24.99, 3);
+  renderProduct("protein-powder", 24.99, 3.6);
+  renderProduct("protein-powder", 24.99, 3.4);
+  renderProduct("protein-powder", 24.99, 3.7);
+  renderProduct("protein-powder", 24.99, 3.9);
 
   function passwordEvents() {
     // Real-time password strength checking

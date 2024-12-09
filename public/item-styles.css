@@ -58,3 +58,60 @@ main > div > div {
   text-align: center;
   align-content: center;
 }
+
+#product-area {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.product-card.enlarged {
+  width: 400px;
+  position: relative;
+}
+
+.product-card.enlarged .buy-button {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #333;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+.hidden {
+  display: none;
+}
+
+.product-card {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  width: 150px;
+  padding: 10px;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  margin: 0 auto;
+}
+
+.product-image {
+  max-width: 100px;
+  height: auto;
+}
+
+.product-name {
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.stars {
+  color: gold;
+  margin-bottom: 5px;
+  font-size: 1.2em;
+}
+
+.price {
+  font-size: 1.1em;
+  color: #333;
+  margin-bottom: 10px;
+}

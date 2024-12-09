@@ -4,36 +4,38 @@
     <meta charset="utf-8">
     <title>CutSupplements.com</title>
     <link href="index-styles.css" rel="stylesheet">
-    <script src="index.js"></script>
+    <link href="item-styles.css" rel="stylesheet">
+    <script src="index.js" defer></script>
   </head>
   <body>
     <header id="top">
       <h1>CutSupplements.com</h1>
       <!--Search bar and link bar-->
       <section id="group-section">
-        <a href="#">Shop All</a>
-        <a href="#">Goals</a>
+        <a href="index.html">Shop All</a>
         <form id="search-bar">
           <input type="search" class="search-input" placeholder="Search..." required>
           <button type="submit">Search</button>
         </form>
+        <a href="#" id="create-account-btn">Create Account</a>
       </section>
     </header>
     <main>
       <!--Items-->
-      <section class="product-section">
-        <h2>Best Sellers</h2>
+      <h2 id="all-products">All Products</h2>
+      <section class="product-section" id="product-area">
       </section>
-      <section class="product-section">
+      <!-- <section class="product-section">
         <h2>Trending Now</h2>
       </section>
       <section class="product-section">
         <h2>Newest Product</h2>
-        <!-- API that has info -->
+
       </section>
       <section class="product-section">
         <h2>Muscle Building</h2>
       </section>
+       -->
     </main>
     <footer>
       <!--
@@ -98,7 +100,7 @@
         </form>
       </div>
     -->
-    <div id="testing-section" class="testing-container">
+    <div hidden id="testing-section" class="testing-container">
       <h3>Password Strength Tester</h3>
       <div class="password-requirements">
           <p>Password must contain:</p>
