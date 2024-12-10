@@ -20,13 +20,49 @@
         throw new Error("Could not find product");
       }
       const data = await response.json();
-      console.log(data);
-      // Hide product listing and show individual product
-      id("product-area").classList.add('hidden');
-      id("all-products").classList.add('hidden');
+      displayProducts(data);
     } catch(err) {
       console.error("Error loading product:", err);
     }
+  }
+
+  async function purchase(productId, cost) {
+    if (productId && cost && user) {
+      const form = new dataForm();
+      form.append("username", user);
+      form.append("product_id", productId);
+      form.append("cost", cost);
+      try {
+        const response = await fetch("/purchase", {
+          method: "POST",
+          body: form,
+        });
+        if (!response.ok) {
+          throw new Error("Error Error Error")
+        }
+        const data = await response.json();
+        const confirmationNumber = data.confirmationCode;
+        //whatever you want to make it show the confirmation number
+      } catch(err) {
+
+      }
+    }
+  }
+
+  function displayProducts(data) {
+    id("product-area").classList.add('hidden');
+    id("all-products").classList.add('hidden');
+    const productName = data.name;
+    const productId = data.product_id;
+    const img = createImage(productName);
+    const price = data.price;
+    const description = data.description;
+    const stock = data.stock;
+    const type = data.type;
+    const avgRating = data.average_rating;
+    const totalRating = data.total_rating;
+
+    //with the purchase button make sure to pass in product_id and cost
   }
 
   async function displayAllProducts() {
@@ -64,10 +100,8 @@
     let priceDiv = createPriceDiv(price);
     // Add click event listener to the card
     productCard.addEventListener('click', function() {
-      console.log("inside");
       showProduct(productName);
     });
-
     // Append all elements to the card
     productCard.appendChild(img);
     productCard.appendChild(nameDiv);
@@ -216,6 +250,31 @@
 
  async function login() {
    // Implement login logic here
+  let username = id('username').value;
+  let password = id('password').value;
+  try {
+    const dataForm = new formData();
+    dataForm.append("username", username);
+    dataForm.append("password", password);
+    const response = await fetch("/login", {
+      method: "POST",
+      body: dataForm,
+    });
+    if (!response.ok) {
+      throw new Error("Could Not Log In");
+    }
+    const data = response.json();
+    if (data.valid) {
+      user = username;
+      console.log("login successful")
+    } else {
+      //password or username was incorrect
+      console.log("failed");
+    }
+  } catch (err) {
+    console.error(err);
+  }
+   //if everything is true then
  }
 
  function logout() {
