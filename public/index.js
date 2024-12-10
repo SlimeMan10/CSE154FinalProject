@@ -635,20 +635,26 @@ async function addReview() {
   }
 }
 
-async function getTransactions() {
+async function getTransactions(user) {
   try {
-      const response = await fetch("/transactions?username=" + user);
+      const jsonPayload = JSON.stringify({ username: user });
+      const url = "/transactions?data=" + encodeURIComponent(jsonPayload);
+
+      const response = await fetch(url, {
+        method: "GET",
+      });
+
       if (!response.ok) {
           throw new Error("Failed to fetch transactions");
-      } else {
-          const data = await response.json();
-          if (data.length === 0) {
-              displayNoOrders();
-          } else {
-              displayPreviousTransactions(data);
-          }
       }
-  } catch(err) {
+
+      const data = await response.json();
+      if (data.length === 0) {
+          displayNoOrders();
+      } else {
+          displayPreviousTransactions(data);
+      }
+  } catch (err) {
       showError('transactions', 'Failed to load transaction history. Please try again later.', false);
   }
 }
