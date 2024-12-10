@@ -30,12 +30,7 @@
         result.forEach(card => {
             let name = card.name;
             let price = card.price;
-            let averageReview;
-            if (card.average_rating == null) {
-              averageReview = 0;
-            } else {
-              averageReview = card.average_rating;
-            }
+            let averageReview = card.average_rating;
             renderProduct(name, price, averageReview);
         });
     } catch (err) {

@@ -168,7 +168,8 @@ app.get("/getProducts", async function(req, res) {
 app.get("/getAllProducts", async function(req, res) {
   try {
     const db = await getDBConnection();
-    const query = "SELECT p.product_id, p.name, p.description, p.price, p.stock, p.image, p.type, r.average_rating, r.num_ratings " +
+    const query = "SELECT p.product_id, p.name, p.description, p.price, p.stock, p.image, p.type, COALESCE(r.average_rating, 0) as average_rating, " +
+                "COALESCE(r.num_ratings, 0) as num_ratings  " +
                   "FROM Products p " +
                   "LEFT JOIN Reviews r ON r.product_id = p.product_id " +
                   "GROUP BY p.product_id";
