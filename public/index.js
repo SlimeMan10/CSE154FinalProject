@@ -22,7 +22,7 @@
       const data = await response.json();
       displayProducts(data);
     } catch(err) {
-      console.error("Error loading product:", err);
+      console.error(err);
     }
   }
 
@@ -49,7 +49,8 @@
     }
   }
 
-  function displayProducts(data) {
+  function displayProducts(item) {
+    const data = item[0];
     id("product-area").classList.add('hidden');
     id("all-products").classList.add('hidden');
     const productName = data.name;
@@ -61,8 +62,8 @@
     const type = data.type;
     const avgRating = data.average_rating;
     const totalRating = data.total_rating;
-
     //with the purchase button make sure to pass in product_id and cost
+    console.log(data);
   }
 
   async function displayAllProducts() {
