@@ -30,14 +30,13 @@ app.post("/addProduct", async function(req, res) {
  let description = req.body.description;
  let price = req.body.price;
  let stock = req.body.stock;
- let image = req.body.image;
  let type = req.body.type;
  console.log(req.body);
- if (product_id && name && description && price && stock && image && type) {
+ if (product_id && name && description && price && stock && type) {
    try {
-     const query = "INSERT INTO Products (product_id, name, description, price, stock, image, type) VALUES (?, ?, ?, ?, ?, ?, ?)";
+     const query = "INSERT INTO Products (product_id, name, description, price, stock, type) VALUES (?, ?, ?, ?, ?, ?)";
      const db = await getDBConnection();
-     await db.run(query, [product_id, name, description, price, stock, image, type]);
+     await db.run(query, [product_id, name, description, price, stock, type]);
      await db.close();
      res.json({"message": "Product added successfully"});
    } catch (err) {
@@ -52,7 +51,6 @@ app.post("/addProduct", async function(req, res) {
    if (!description) missing.push("description");
    if (!price) missing.push("price");
    if (!stock) missing.push("stock");
-   if (!image) missing.push("image");
    if (!type) missing.push("type");
    res.status(USERERROR).type('text').send("Missing required product information");
  }
@@ -127,7 +125,7 @@ app.get("/getProducts", async function(req, res) {
   const maxPrice = req.query.maxPrice;
   if (name || type || maxPrice) {
     try {
-      let query = "SELECT p.name, p.description, p.price, p.stock, p.image, p.product_id, p.type, " +
+      let query = "SELECT p.name, p.description, p.price, p.stock, p.product_id, p.type, " +
         "r.average_rating AS average_rating, " +
         "r.num_ratings AS total_ratings, " +
         "GROUP_CONCAT(DISTINCT u.username) AS review_usernames " +
@@ -167,7 +165,7 @@ app.get("/getProducts", async function(req, res) {
 app.get("/getAllProducts", async function(req, res) {
   try {
     const db = await getDBConnection();
-    const query = "SELECT p.product_id, p.name, p.description, p.price, p.stock, p.image, p.type, COALESCE(r.average_rating, 0) as average_rating, " +
+    const query = "SELECT p.product_id, p.name, p.description, p.price, p.stock, p.type, COALESCE(r.average_rating, 0) as average_rating, " +
                 "COALESCE(r.num_ratings, 0) as num_ratings  " +
                   "FROM Products p " +
                   "LEFT JOIN Reviews r ON r.product_id = p.product_id " +
@@ -257,7 +255,7 @@ app.get("/transactions", async function (req, res) {
   } else {
     try {
       const db = await getDBConnection();
-      const query = "SELECT o.order_id, p.name, p.description, p.price, p.image, p.product_id " +
+      const query = "SELECT o.order_id, p.name, p.description, p.price, p.product_id " +
                     "FROM Orders o " +
                     "JOIN Products p ON o.product_id = p.product_id " +
                     "WHERE o.username = ?";

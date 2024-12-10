@@ -11,7 +11,6 @@ CREATE TABLE Products (
   description TEXT NOT NULL,
   price DECIMAL(5,2) NOT NULL,
   stock INT NOT NULL,
-  image TEXT NOT NULL,
   type VARCHAR(255) NOT NULL,
 );
 
