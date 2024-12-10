@@ -11,6 +11,69 @@
     if(id('submit-review-btn')) {
       id('submit-review-btn').addEventListener('click', handleReviewSubmission);
     }
+
+    if(id('create-account-btn')) {
+      id('create-account-btn').addEventListener('click', handleCreateAccountClick);
+    }
+
+    if (id('search-button')) {
+      id('search-button').addEventListener('click', handleSearch);
+    }
+  }
+
+
+  function handleCreateAccountClick() {
+    console.log("Creating acc")
+    id('product-area').classList.add('hidden');
+    id('all-products').classList.add('hidden');
+    id('main-item-section').classList.add('hidden');
+    id('account-section').removeAttribute('hidden');
+  }
+
+  function handleSearch(event) {
+    event.preventDefault();
+    const searchInput = qs('#search-bar .search-input').value.trim();
+    if (searchInput) {
+      displayAllWithSearchTerms(searchInput);
+    }
+  }
+  
+  async function displayAllWithSearchTerms(searchInput) {
+    try {
+      const response = await fetch('/getProducts?name=' + encodeURIComponent(searchInput));
+      if (!response.ok) {
+        throw new Error("Could not fetch products");
+      }
+      let result = await response.json();
+      id('product-area').classList.remove('hidden');
+      id('all-products').classList.remove('hidden');
+      id('main-item-section').classList.remove('hidden');
+      id('account-section').setAttribute('hidden', '');
+      id('product-area').innerHTML = '';
+      id('all-products').textContent = `Results for "${searchInput}"`;
+  
+      if (result.length === 0) {
+        const noProductsDiv = gen('div');
+        noProductsDiv.textContent = 'No products found.';
+        noProductsDiv.style.textAlign = 'center';
+        noProductsDiv.style.marginTop = '40px';
+        noProductsDiv.style.fontSize = '1.2em';
+        id('product-area').appendChild(noProductsDiv);
+        id('product-area').classList.remove('hidden');
+        id('all-products').classList.remove('hidden');
+      } else {
+        result.forEach(card => {
+          let name = card.name;
+          let price = card.price;
+          let averageReview = card.average_rating || 0;
+          renderProduct(name, price, averageReview);
+        });
+        id('product-area').classList.remove('hidden');
+        id('all-products').classList.remove('hidden');
+      }
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   async function showProduct(productName) {
@@ -50,9 +113,15 @@
   }
 
   function displayProducts(item) {
+    console.log("Display products");
     const data = item[0];
-    id("product-area").classList.add('hidden');
+
     id("all-products").classList.add('hidden');
+
+    const productArea = id("product-area");
+    productArea.innerHTML = ''; 
+    productArea.classList.remove('hidden');
+
     const productName = data.name;
     const productId = data.product_id;
     const img = createImage(productName);
@@ -61,9 +130,40 @@
     const stock = data.stock;
     const type = data.type;
     const avgRating = data.average_rating;
-    const totalRating = data.total_rating;
-    //with the purchase button make sure to pass in product_id and cost
-    console.log(data);
+
+    const singleProductContainer = gen('div');
+    singleProductContainer.className = 'single-product-container';
+
+    singleProductContainer.appendChild(img);
+
+    const nameDiv = createNameDiv(productName);
+    singleProductContainer.appendChild(nameDiv);
+
+    const descriptionDiv = gen('div');
+    descriptionDiv.className = 'product-description';
+    descriptionDiv.textContent = description;
+    singleProductContainer.appendChild(descriptionDiv);
+
+    const priceDiv = createPriceDiv(price);
+    singleProductContainer.appendChild(priceDiv);
+
+    const stockDiv = gen('div');
+    stockDiv.className = 'product-stock';
+    stockDiv.textContent = `In stock: ${stock}`;
+    singleProductContainer.appendChild(stockDiv);
+
+    const ratingDiv = createStarDiv(avgRating);
+    singleProductContainer.appendChild(ratingDiv);
+
+    const buyButton = gen('button');
+    buyButton.textContent = 'Buy';
+    buyButton.className = 'buy-button';
+    buyButton.addEventListener('click', function() {
+    purchase(productId, price);
+  });
+  singleProductContainer.appendChild(buyButton);
+
+  productArea.appendChild(singleProductContainer);
   }
 
   async function displayAllProducts() {
