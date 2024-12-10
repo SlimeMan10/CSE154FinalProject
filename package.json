@@ -18,6 +18,10 @@
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
+    "eslint": "^9.16.0",
+    "globals": "^15.13.0",
+    "stylelint": "^16.11.0",
+    "stylelint-config-standard": "^36.0.1",
     "webpack": "^5.97.1"
   }
 }

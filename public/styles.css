@@ -5,13 +5,6 @@ body {
   background-color: #f9f9f9;
 }
 
-header {
-  background-color: #4c4a4a;
-  padding: 20px;
-  color: white;
-  padding: 10px 20px;
-}
-
 .success-message {
   background-color: #d4edda;
   color: #155724;
@@ -21,7 +14,6 @@ header {
   margin: 10px 0;
   text-align: center;
 }
-
 
 header h1 {
   margin: 0;
@@ -44,7 +36,6 @@ header h1 {
 .transaction-price {
   margin: 5px 0;
 }
-
 
 #account-section {
   display: flex;
@@ -88,13 +79,10 @@ button:hover {
   background-color: #555;
 }
 
-main {
-  padding: 20px;
-}
-
 .product-section {
   background-color: white;
   margin: 20px 0;
+  display: flex;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -128,11 +116,6 @@ footer p:hover {
 
 #shop-all > a {
   color: white;
-}
-
-#group-section > a {
-  color: white;
-  text-decoration: none;
 }
 
 footer a {
@@ -189,21 +172,6 @@ footer h2 {
   font-size: 20px;
 }
 
-.password-toggle:hover {
-  opacity: 0.7;
-}
-
-#create-password-input-form {
-  padding-right: 40px;
-}
-
-body {
-  font-family: "Helvetica", "Arial", sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #f9f9f9;
-}
-
 header {
   background-color: #4c4a4a;
   padding: 10px;
@@ -221,11 +189,6 @@ header > nav > a {
   color: white;
   text-decoration: none;
   margin-left: 15px;
-}
-
-.product-section {
-  display: flex;
-  padding: 20px;
 }
 
 aside {
@@ -279,16 +242,12 @@ main > div > div {
   border-radius: 4px;
 }
 
-.hidden {
-  display: none;
-}
-
 .product-card {
   border: 1px solid #ddd;
   border-radius: 5px;
   width: 150px;
   padding: 10px;
-  font-family: Arial, sans-serif;
+  font-family: "Arial", sans-serif;
   text-align: center;
   margin: 0 auto;
 }
@@ -358,12 +317,6 @@ main > div > div {
   padding: 10px;
   border: none;
   border-radius: 4px;
-}
-
-.password-input-group {
-  position: relative;
-  display: flex;
-  align-items: center;
 }
 
 #create-password-input-form {
