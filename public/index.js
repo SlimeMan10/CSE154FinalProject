@@ -313,13 +313,39 @@
   }
 
   function loginEvents() {
-    if(id('login-btn')) {
-      id('login-btn').addEventListener('click', login);
-    }
-    if(id('logout-btn')) {
-      id('logout-btn').addEventListener('click', logout);
-    }
+    id('login-btn').addEventListener('click', handleLogin);
+    id('logout-btn').addEventListener('click', logout);
   }
+
+  function handleLogin() {
+    handleLoginClick();
+    id('submit-login-btn').addEventListener('click', async function() {
+      let logged = await login();
+      if (logged) {
+        showLoggedIn();
+      } else {
+        logInFailed();
+      }
+    })
+  }
+
+  function showLoggedIn() {
+    console.log("in")
+    console.log(user)
+  }
+
+  function logInFailed() {
+    console.log('no')
+    console.log(user)
+  }
+
+  function handleLoginClick() {
+    id('product-area').classList.add('hidden');
+    id('all-products').classList.add('hidden');
+    id('main-item-section').classList.add('hidden');
+    id('login-section').classList.remove('hidden');
+
+}
 
   function checkIfStrong(password) {
     const hasUpperCase = /[A-Z]/.test(password);
@@ -375,11 +401,10 @@
  }
 
  async function login() {
-   // Implement login logic here
-  let username = id('username').value;
-  let password = id('password').value;
+  let username = id('login-username').value;
+  let password = id('login-password').value;
   try {
-    const dataForm = new formData();
+    const dataForm = new FormData();
     dataForm.append("username", username);
     dataForm.append("password", password);
     const response = await fetch("/login", {
@@ -389,19 +414,19 @@
     if (!response.ok) {
       throw new Error("Could Not Log In");
     }
-    const data = response.json();
+    const data = await response.json();
     if (data.valid) {
       user = username;
-      console.log("login successful")
+      return true;
     } else {
       //password or username was incorrect
-      console.log("failed");
+      return false;
     }
   } catch (err) {
     console.error(err);
+    return false;
   }
-   //if everything is true then
- }
+}
 
  function logout() {
    if (user !== null) {

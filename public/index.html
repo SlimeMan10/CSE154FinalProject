@@ -1,90 +1,114 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>CutSupplements.com</title>
-    <link href="styles.css" rel="stylesheet">
-    <script src="index.js" defer></script>
-  </head>
-  <body>
-    <header id="top">
-      <h1>CutSupplements.com</h1>
-      <!--Search bar and link bar-->
-      <section id="group-section">
-        <a href="index.html">Shop All</a>
-        <form id="search-bar">
-          <input type="search" class="search-input" placeholder="Search..." required>
+    <head>
+        <meta charset="utf-8">
+        <title>CutSupplements.com</title>
+        <link href="styles.css" rel="stylesheet">
+        <script src="index.js" defer></script>
+    </head>
+    <body>
+        <header id="top">
+            <h1>CutSupplements.com</h1>
+            <!--Search bar and link bar-->
+            <section id="group-section">
+                <a href="index.html">Shop All</a>
+                <form id="search-bar">
+                    <input type="search" class="search-input" placeholder="Search..." required>
+                    <input type="number"
+                           class="price-input"
+                           placeholder="Max Price"
+                           min="0"
+                           step="0.01"
+                           id="max-price">
+                    <select id="category" name="category">
+                        <option value="">All Categories</option>
+                        <option value="Muscle Building">Muscle Building</option>
+                        <option value="Weight Loss">Weight Loss</option>
+                        <option value="Brain Function">Brain Function</option>
+                    </select>
+                    <button type="submit" id="search-button">Search</button>
+                </form>
+                <a href="#" id="create-account-btn">Create Account</a>
+                <a href="#" id="login-btn">Login</a>
+                <a href="#" id="logout-btn" class="hidden">Logout</a>
+            </section>
+        </header>
 
-          <input type="number"
-                 class="price-input"
-                 placeholder="Max Price"
-                 min="0"
-                 step="0.01"
-                 id="max-price">
-          <select id="category" name="category">
-            <option value="">All Categories</option>
-            <option value="Muscle Building">Muscle Building</option>
-            <option value="Weight Loss">Weight Loss</option>
-            <option value="Brain Function">Brain Function</option>
-          </select>
-          <button type="submit" id="search-button">Search</button>
-        </form>
-        <a href="#" id="create-account-btn">Create Account</a>
-        <a href="login" id="login-btn">Login</a>
-      </section>
-    </header>
-    <main id="main-item-section">
-      <h2 id="all-products">All Products</h2>
-      <section class="product-section" id="product-area">
-      </section>
-    </main>
-    <footer>
-    <section hidden id="account-section">
-      <div id="testing-section" class="testing-container">
-        <h3>Create an account!</h3>
-        <div class="password-requirements">
-            <h4>Password must contain:</h4>
-            <ul id="password-checklist">
-                <li>At least 8 characters</li>
-                <li>One uppercase letter</li>
-                <li>One lowercase letter</li>
-                <li>One number</li>
-                <li>One special character</li>
-            </ul>
-        </div>
-        <form id="password-test-form">
-            <div class="form-group">
-                <input type="text"
-                       id="username"
-                       placeholder="Username"
-                       required>
-            </div>
-            <div class="form-group">
-                <input type="email"
-                       id="email"
-                       placeholder="Email"
-                       required>
-            </div>
-            <div class="password-input-group">
-                <input type="password"
-                       id="create-password-input-form"
-                       placeholder="Test your password strength"
-                       required>
-                <button type="button"
-                        id="toggle-password"
-                        class="password-toggle">👁️</button>
-            </div>
-            <div class="form-group">
-                <input type="password"
-                       id="verify-password-input"
-                       placeholder="Verify password"
-                       required>
-            </div>
-            <button type="button"
-                    id="create-user-btn">Create Account</button>
-        </form>
-    </div>
-    </section>
-    </footer>
-  </body>
+        <main id="main-item-section">
+            <h2 id="all-products">All Products</h2>
+            <section class="product-section" id="product-area">
+            </section>
+        </main>
+
+        <footer>
+            <section hidden id="account-section">
+                <div id="testing-section" class="testing-container">
+                    <h3>Create an account!</h3>
+                    <div class="password-requirements">
+                        <h4>Password must contain:</h4>
+                        <ul id="password-checklist">
+                            <li>At least 8 characters</li>
+                            <li>One uppercase letter</li>
+                            <li>One lowercase letter</li>
+                            <li>One number</li>
+                            <li>One special character</li>
+                        </ul>
+                    </div>
+                    <form id="password-test-form">
+                        <div class="form-group">
+                            <input type="text"
+                                   id="username"
+                                   placeholder="Username"
+                                   required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email"
+                                   id="email"
+                                   placeholder="Email"
+                                   required>
+                        </div>
+                        <div class="password-input-group">
+                            <input type="password"
+                                   id="create-password-input-form"
+                                   placeholder="Test your password strength"
+                                   required>
+                            <button type="button"
+                                    id="toggle-password"
+                                    class="password-toggle">👁️</button>
+                        </div>
+                        <div class="form-group">
+                            <input type="password"
+                                   id="verify-password-input"
+                                   placeholder="Verify password"
+                                   required>
+                        </div>
+                        <button type="button"
+                                id="create-user-btn">Create Account</button>
+                    </form>
+                </div>
+            </section>
+
+            <section id="login-section" class="hidden">
+                <div id="login-container" class="testing-container">
+                    <h3>Login to your account</h3>
+                    <form id="login-form">
+                        <div class="form-group">
+                            <input type="text"
+                                   id="login-username"
+                                   placeholder="Username"
+                                   required>
+                        </div>
+                        <div class="form-group">
+                            <input type="password"
+                                   id="login-password"
+                                   placeholder="Password"
+                                   required>
+                        </div>
+                        <button type="button"
+                                id="submit-login-btn">Login</button>
+                    </form>
+                </div>
+            </section>
+        </footer>
+    </body>
 </html>
