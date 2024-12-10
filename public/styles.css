@@ -28,6 +28,24 @@ header h1 {
   font-size: 1.5em;
 }
 
+.transactions-list {
+  margin-top: 20px;
+}
+
+.transaction-item {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.transaction-id,
+.transaction-name,
+.transaction-description,
+.transaction-price {
+  margin: 5px 0;
+}
+
+
 #account-section {
   display: flex;
   align-items: center;

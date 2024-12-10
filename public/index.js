@@ -7,13 +7,18 @@
   window.addEventListener('load', init);
 
   function init() {
+    const savedUser = localStorage.getItem('username');
+    if (savedUser) {
+      user = savedUser;
+      showLoggedIn();
+    }
+
     displayAllProducts();
     loginEvents();
     passwordEvents();
 
     if (id('submit-payment-btn')) {
       id('submit-payment-btn').addEventListener('click', async function() {
-        // Validate payment info
         const cardHolder = id('card-holder').value.trim();
         const cardNumber = id('card-number').value.trim();
         const cardExpiry = id('card-expiry').value.trim();
@@ -25,17 +30,14 @@
           return;
         }
     
-        // If everything is good, proceed to purchase
         try {
           await handlePurchase(currentProductId, currentProductPrice);
     
-          // On success, hide payment form and show products again
           id('payment-section').classList.add('hidden');
           id('product-area').classList.remove('hidden');
           id('all-products').classList.remove('hidden');
           id('main-item-section').classList.remove('hidden');
     
-          // Clear the payment form fields after success
           clearPaymentForm();
         } catch (err) {
           showError('payment', 'Failed to complete purchase. Please try again.', false);
@@ -77,7 +79,6 @@
   }
 
   function displaySuccessMessage(message) {
-    // Remove old success message if present
     const oldMessage = id('global-success-message');
     if (oldMessage) {
       oldMessage.remove();
@@ -88,16 +89,9 @@
     successDiv.className = 'success-message';
     successDiv.textContent = message;
 
-    // Append it below the main item section
     const mainSection = id('main-item-section');
     mainSection.parentNode.insertBefore(successDiv, mainSection.nextSibling);
 
-    // Remove after 5 seconds
-    setTimeout(() => {
-      if (successDiv.parentNode) {
-        successDiv.parentNode.removeChild(successDiv);
-      }
-    }, 5000);
   }
 
   function handleCreateAccountClick() {
@@ -209,7 +203,7 @@
   function createProductContainer(data) {
     const singleProductContainer = gen('div');
     singleProductContainer.className = 'single-product-container';
-    singleProductContainer.setAttribute('data-product-id', data.product_id); // Ensure updateStockDisplay works
+    singleProductContainer.setAttribute('data-product-id', data.product_id);
 
     appendBasicInfo(singleProductContainer, data);
     appendProductDetails(singleProductContainer, data);
@@ -272,7 +266,6 @@
         currentProductId = productId;
         currentProductPrice = price;
 
-        // Hide product area and show payment section
         id('product-area').classList.add('hidden');
         id('all-products').classList.add('hidden');
         id('main-item-section').classList.add('hidden');
@@ -355,11 +348,11 @@
 
       const data = await response.json();
 
-      // Display success message after purchase
       displaySuccessMessage(`Purchase successful! Order number: ${data.confirmationCode}`);
 
-      // Update stock for the current product on the screen
       updateStockDisplay(productId);
+
+      id('account-section').classList.add('hidden');
 
     } catch (err) {
       console.error(err);
@@ -413,6 +406,78 @@
       showError('review', 'Failed to submit review. Please try again.', false);
     }
   }
+
+  function displayNoOrders() {
+    const transactionArea = id('transaction-area');
+    transactionArea.classList.remove('hidden');
+    transactionArea.innerHTML = '';
+  
+    const noOrdersDiv = gen('div');
+    noOrdersDiv.textContent = 'No previous orders found.';
+    noOrdersDiv.classList.add('no-products-message');
+    transactionArea.appendChild(noOrdersDiv);
+  }
+  
+  async function displayPreviousTransactions() {
+  try {
+    const response = await fetch("/transactions?username=" + user);
+    if (!response.ok) {
+      throw new Error("Failed to fetch transactions");
+    }
+
+    const data = await response.json();
+
+    id('product-area').classList.add('hidden');
+    id('all-products').classList.add('hidden');
+    id('main-item-section').classList.add('hidden');
+
+    const transactionArea = id('transaction-area');
+    transactionArea.classList.remove('hidden');
+    transactionArea.innerHTML = '';
+
+    const heading = gen('h3');
+    heading.textContent = 'Purchase History';
+    transactionArea.appendChild(heading);
+
+    const list = gen('div');
+    list.className = 'transactions-list';
+
+    data.forEach(order => {
+      const orderDiv = gen('div');
+      orderDiv.className = 'transaction-item';
+
+      const orderId = gen('div');
+      orderId.className = 'transaction-id';
+      orderId.textContent = `Order ID: ${order.order_id}`;
+
+      const productName = gen('div');
+      productName.className = 'transaction-name';
+      productName.textContent = `Product: ${order.name}`;
+
+      const description = gen('div');
+      description.className = 'transaction-description';
+      description.textContent = `Description: ${order.description}`;
+
+      const price = gen('div');
+      price.className = 'transaction-price';
+      price.textContent = `Price: $${order.price}`;
+
+      orderDiv.appendChild(orderId);
+      orderDiv.appendChild(productName);
+      orderDiv.appendChild(description);
+      orderDiv.appendChild(price);
+      list.appendChild(orderDiv);
+    });
+
+    transactionArea.appendChild(list);
+
+  } catch (err) {
+    console.error(err);
+    showError('transactions', 'Failed to load transaction history. Please try again later.', false);
+  }
+}
+
+  
 
   async function displayAllProducts() {
     try {
@@ -536,6 +601,7 @@
     id('submit-login-btn').addEventListener('click', async function() {
       let logged = await login();
       if (logged) {
+        localStorage.setItem('username', user);
         showLoggedIn();
       } else {
         logInFailed();
@@ -636,6 +702,7 @@
       let data = await response.json();
       if (data.message === "User created") {
         user = username;
+        localStorage.setItem('username', user);
         return true;
       } else {
         showError('create-account', 'Username or email already exists', false);
@@ -682,6 +749,7 @@
       const data = await response.json();
       if (data.valid) {
         user = username;
+        localStorage.setItem('username', user);
         return true;
       } else {
         showError('login', 'Invalid username or password', false);
@@ -696,6 +764,7 @@
   function logout() {
     if (user !== null) {
       user = null;
+      localStorage.removeItem('username');
       id('login-btn').classList.remove('hidden');
       id('logout-btn').classList.add('hidden');
       id('create-account-btn').classList.remove('hidden');
@@ -710,11 +779,15 @@
         throw new Error("Failed to fetch transactions");
       } else {
         const data = await response.json();
+  
+        id('product-area').classList.add('hidden');
+        id('all-products').classList.add('hidden');
+        id('main-item-section').classList.add('hidden');
+  
         if (data.length === 0) {
-          // handle no orders
+          displayNoOrders();
         } else {
-          // handle transactions
-          console.log(data)
+          displayPreviousTransactions(data);
         }
       }
     } catch(err) {

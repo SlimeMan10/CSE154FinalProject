@@ -249,7 +249,7 @@ function generateConfirmationCode() {
 
 //User must be able to access all previous transactions
 app.get("/transactions", async function (req, res) {
-  const username = req.body.username;
+  const username = req.query.username;
   if (!username) {
     res.status(400).json({ error: "Username is required" });
   } else {
