@@ -5,21 +5,24 @@ let user = null;
 window.addEventListener('load', init);
 
 function init() {
-   displayAllProducts();
-   loginEvents();
-   passwordEvents();
-   if(id('submit-review-btn')) {
-     id('submit-review-btn').addEventListener('click', handleReviewSubmission);
-   }
+  displayAllProducts();
+  loginEvents();
+  passwordEvents();
+  if(id('create-account-btn')) {
+    id('create-account-btn').addEventListener('click', handleCreateAccountClick);
+  }
 
-   if(id('create-account-btn')) {
-     id('create-account-btn').addEventListener('click', handleCreateAccountClick);
-   }
+  if (id('search-button')) {
+    id('search-button').addEventListener('click', handleSearch);
+  }
 
-   if (id('search-button')) {
-     id('search-button').addEventListener('click', handleSearch);
-   }
- }
+  if (id('previous-transactions')) {
+    id('previous-transactions').addEventListener('click', function(event) {
+      event.preventDefault();
+      getTransactions();
+    });
+  }
+}
 
  function showError(containerId, message, isSuccess) {
    const errorDiv = id(`${containerId}-error`);
@@ -246,21 +249,24 @@ function init() {
  }
 
  function createReviewButton(productId, select) {
-   const submitReview = gen('button');
-   submitReview.textContent = 'Submit Review';
-   submitReview.className = 'review-button';
-   submitReview.addEventListener('click', function() {
-       if (!user) {
-           showError('review', 'Please login to submit a review', false);
-       }
-       const rating = select.value;
-       if (!rating) {
-           showError('review', 'Please select a rating', false);
-       }
-       handleReviewSubmission(productId, rating);
-   });
-   return submitReview;
- }
+  const submitReview = gen('button');
+  submitReview.textContent = 'Submit Review';
+  submitReview.className = 'review-button';
+  submitReview.addEventListener('click', function() {
+      if (!user) {
+          showError('review', 'Please login to submit a review', false);
+      } else {
+         const rating = select.value;
+         if (!rating) {
+             showError('review', 'Please select a rating', false);
+         } else {
+             handleReviewSubmission(productId, rating);
+         }
+      }
+  });
+  return submitReview;
+}
+
 
  function createErrorDiv() {
    const errorDiv = gen('div');
@@ -297,27 +303,36 @@ function init() {
  }
 
  async function handleReviewSubmission(productId, rating) {
-   try {
-       const formData = new FormData();
-       formData.append('product_id', productId);
-       formData.append('rating', rating);
-       formData.append('username', user);
+  try {
+      const formData = new FormData();
+      formData.append('product_id', productId);
+      formData.append('rating', rating);
+      formData.append('username', user);
 
-       let response = await fetch('/review', {
-           method: 'POST',
-           body: formData
-       });
+      let response = await fetch('/review', {
+          method: 'POST',
+          body: formData
+      });
 
-       if (!response.ok) {
-           throw new Error('Failed to submit review');
-       }
+      if (!response.ok) {
+          showError('review', 'Failed to submit review', false);
+      } else {
+          showError('review', 'Review submitted successfully!', true);
+          // Get the product details using the same endpoint we use elsewhere
+          const productResponse = await fetch('/getProducts?product_id=' + productId);
+          if (productResponse.ok) {
+              const productData = await productResponse.json();
+              if (productData && productData[0]) {
+                  showProduct(productData[0].name);
+              }
+          }
+      }
+  } catch (err) {
+      console.log('Error:', err);
+      showError('review', 'Failed to submit review. Please try again.', false);
+  }
+}
 
-       showProduct(productName);
-
-   } catch (err) {
-       showError('review', 'Failed to submit review. Please try again.', false);
-   }
- }
 
  async function displayAllProducts() {
    try {
@@ -449,14 +464,15 @@ function init() {
  }
 
  function showLoggedIn() {
-   id('logout-btn').classList.remove('hidden');
-   id('login-btn').classList.add('hidden');
-   id('create-account-btn').classList.add('hidden');
-   id('login-section').classList.add('hidden');
-   id('product-area').classList.remove('hidden');
-   id('all-products').classList.remove('hidden');
-   id('main-item-section').classList.remove('hidden');
- }
+  id('logout-btn').classList.remove('hidden');
+  id('login-btn').classList.add('hidden');
+  id('create-account-btn').classList.add('hidden');
+  id('login-section').classList.add('hidden');
+  id('product-area').classList.remove('hidden');
+  id('all-products').classList.remove('hidden');
+  id('main-item-section').classList.remove('hidden');
+  id('previous-transactions').classList.remove('hidden');
+}
 
  function logInFailed() {
    showError('login', 'Invalid username or password', false);
@@ -589,6 +605,7 @@ function logout() {
       id('login-btn').classList.remove('hidden');
       id('logout-btn').classList.add('hidden');
       id('create-account-btn').classList.remove('hidden');
+      id('previous-transactions').classList.add('hidden');
   }
 }
 
@@ -617,6 +634,32 @@ async function addReview() {
       showError('review', 'Server error. Please try again later.', false);
   }
 }
+
+async function getTransactions() {
+  try {
+      const response = await fetch("/transactions?username=" + user);
+      if (!response.ok) {
+          throw new Error("Failed to fetch transactions");
+      } else {
+          const data = await response.json();
+          if (data.length === 0) {
+              displayNoOrders();
+          } else {
+              displayPreviousTransactions(data);
+          }
+      }
+  } catch(err) {
+      showError('transactions', 'Failed to load transaction history. Please try again later.', false);
+  }
+}
+
+  function displayPreviousTransactions(order) {
+    const orderId = data.order_id;
+    const name = order.name;
+    const description = order.description;
+    const price = order.price
+    const productId = order.product_id;
+  }
 
   function id(item) {
     return document.getElementById(item);
