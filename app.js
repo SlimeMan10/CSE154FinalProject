@@ -125,12 +125,11 @@ app.get("/getProducts", async function(req, res) {
   const name = req.query.name;
   const type = req.query.type;
   const maxPrice = req.query.maxPrice;
-
   if (name || type || maxPrice) {
     try {
       let query = "SELECT p.name, p.description, p.price, p.stock, p.image, p.product_id, p.type, " +
         "r.average_rating AS average_rating, " +
-        "r.num_rating AS total_ratings, " +
+        "r.num_ratings AS total_ratings, " +
         "GROUP_CONCAT(DISTINCT u.username) AS review_usernames " +
         "FROM Products p " +
         "LEFT JOIN Reviews r ON r.product_id = p.product_id " +

@@ -6,17 +6,26 @@
 
  function init() {
     displayAllProducts();
-    console.log("Initiing")
     loginEvents();
     passwordEvents();
     if(id('submit-review-btn')) {
       id('submit-review-btn').addEventListener('click', handleReviewSubmission);
     }
-    let products = qsa('.products');
-    if(products.length > 0) {
-      for (let i = 0; i < products.length; i++) {
-        products[i].addEventListener('click', showProduct);
+  }
+
+  async function showProduct(productName) {
+    try {
+      const response = await fetch('/getProducts?name=' + productName);
+      if (!response.ok) {
+        throw new Error("Could not find product");
       }
+      const data = await response.json();
+      console.log(data);
+      // Hide product listing and show individual product
+      id("product-area").classList.add('hidden');
+      id("all-products").classList.add('hidden');
+    } catch(err) {
+      console.error("Error loading product:", err);
     }
   }
 
@@ -36,110 +45,76 @@
     } catch (err) {
         console.log("p");
     }
-}
+  }
 
   /**
    * This renders a product in the product-area div.
-   * @param {string} productName - Name of the product from the database (Will
-   * be converted to lowercase AND have dashes in the name replace with spaces.
-   * Also coverts to spaces)
+   * @param {string} productName - Name of the product from the database
    * @param {number} price - Price of the product from database
-   * @param {number} averageReviews - Average reviews, shows the rounded amount
-   * in stars ()
+   * @param {number} averageReviews - Average reviews
    */
   function renderProduct(productName, price, averageReviews) {
-    const productArea = document.getElementById('product-area');
-    if (productArea) {
-      const starCount = Math.floor(averageReviews);
-      const starEmoji = '⭐';
-      console.log(averageReviews - starCount)
-      const starsText = (averageReviews - starCount >= 0.5) ?
-          starEmoji.repeat(starCount) + "✨": starEmoji.repeat(starCount);
+    const productArea = id('product-area');
+    // Create main product card div
+    const productCard = gen('div');
+    productCard.className = 'product-card';
+    let img = createImage(productName);
+    let nameDiv = createNameDiv(productName);
+    let starsDiv = createStarDiv(averageReviews);
+    let priceDiv = createPriceDiv(price);
+    // Add click event listener to the card
+    productCard.addEventListener('click', function() {
+      console.log("inside");
+      showProduct(productName);
+    });
 
-      const imgName = productName.toLowerCase().replace(/\s+/g, '-');
-      const imgSrc = `./imgs/${imgName}.jpg`;
+    // Append all elements to the card
+    productCard.appendChild(img);
+    productCard.appendChild(nameDiv);
+    productCard.appendChild(starsDiv);
+    productCard.appendChild(priceDiv);
+    productArea.appendChild(productCard);
+  }
 
-      const productDiv = document.createElement('div');
-      productDiv.className = 'product-card';
+  function createPriceDiv(price) {
+    const priceDiv = gen('div');
+    priceDiv.className = 'price';
+    priceDiv.textContent = `From $${price} USD`;
+    return priceDiv;
+  }
 
-      const img = document.createElement('img');
-      img.src = imgSrc;
-      img.alt = productName;
-      img.className = "product-image"
+  function createStarDiv(averageReviews) {
+    const starsDiv = gen('div');
+    starsDiv.className = 'stars';
+    const starCount = Math.floor(averageReviews);
+    const starEmoji = '⭐';
+    const starsText = (averageReviews - starCount >= 0.5) ?
+        starEmoji.repeat(starCount) + "✨" : starEmoji.repeat(starCount);
+    starsDiv.textContent = starsText;
+    return starsDiv;
+  }
 
-      const nameDiv = document.createElement('div');
+  function createNameDiv(productName) {
+    const nameDiv = gen('div');
       nameDiv.className = 'product-name';
-      productName = productName
+      const formattedName = productName
         .split('-')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
-
-      nameDiv.textContent = productName;
-
-      const starsDiv = document.createElement('div');
-      starsDiv.className = 'stars';
-      starsDiv.textContent = starsText;
-
-      const priceDiv = document.createElement('div');
-      priceDiv.className = 'price';
-      priceDiv.textContent = `From $${price} USD`;
-      productDiv.addEventListener('click', onProductClick);
-      productDiv.appendChild(img);
-      productDiv.appendChild(nameDiv);
-      productDiv.appendChild(starsDiv);
-      productDiv.appendChild(priceDiv);
-      productArea.appendChild(productDiv);
-    }
+      nameDiv.textContent = formattedName;
+      return nameDiv;
   }
 
-  /**
-   * Handles  click event on a product card. Finds  closest product-card
-   * element and, if found, shows it as the currently selected product by calling
-   * showCurrProduct.
-   * @param {Event} event - The DOM event triggered by clicking on the product card or its children.
-   */
-  function onProductClick(event) {
-    const card = event.target.closest('.product-card');
-    if (card) {
-      showCurrProduct(card);
-    }
+  function createImage(productName) {
+    // Create and setup image
+    const imgName = productName.toLowerCase().replace(/\s+/g, '-');
+    const img = gen('img');
+    img.src = `./imgs/${imgName}.jpg`;
+    img.alt = productName;
+    img.className = 'product-image';
+    return img;
   }
 
-  /**
-   * Displays a large product card and hides all other product cards.
-   * Adds buy button also to the enlarged card if it doesn't already exist.
-   * @param {HTMLElement} clickedCard -  product card element clicked and should be enlarged.
-   */
-  function showCurrProduct(clickedCard) {
-    id("product-area").classList.add('hidden');
-    id("all-products").classList.add('hidden');
-
-    const cards = document.querySelectorAll('.product-card');
-    cards.forEach(card => {
-      if (card !== clickedCard) {
-        card.classList.add('hidden');
-      }
-    });
-
-    clickedCard.classList.add('enlarged');
-
-    if (!clickedCard.querySelector('.buy-button')) {
-      const buyBtn = document.createElement('a');
-      buyBtn.href = "#"; // PUT CHECKOUT LINK HERE
-      buyBtn.textContent = "Buy Now";
-      buyBtn.classList.add('buy-button');
-      clickedCard.appendChild(buyBtn);
-    }
-  }
-
-  /*
-  renderProduct("Creatine", 15.96, 4.7);
-  renderProduct("protein-powder", 24.99, 3);
-  renderProduct("protein-powder", 24.99, 3.6);
-  renderProduct("protein-powder", 24.99, 3.4);
-  renderProduct("protein-powder", 24.99, 3.7);
-  renderProduct("protein-powder", 24.99, 3.9);
-  */
   function passwordEvents() {
     // Real-time password strength checking
     id('create-password-input-form').addEventListener('input', function(event) {
@@ -197,32 +172,6 @@
                    hasSpecialChar && isLongEnough;
     return isValid;
   }
-
- async function showProduct(event) {
-   const productName = event.currentTarget.getAttribute('data-name');
-   const data = await getProductInfo(productName);
-   if (data) {
-     displayProduct(data);
-   }
- }
-
- async function getProductInfo(name) {
-   const getProduct = "/getProducts?name=";
-   try {
-     const response = await fetch(getProduct + name);
-     if (!response.ok) {
-       throw new Error("Failed getting information");
-     }
-     const data = await response.json();
-     return data;
-   } catch (err) {
-     return null;
-   }
- }
-
- function displayProduct(productData) {
-   id('review-section').setAttribute('data-current-product', productData[0].product_id);
- }
 
  async function createUser() {
    try {
@@ -324,6 +273,10 @@
 
  function qsa(item) {
    return document.querySelectorAll(item);
+ }
+
+ function gen(item) {
+   return document.createElement(item);
  }
 
 })();
