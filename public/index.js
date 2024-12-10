@@ -330,8 +330,10 @@
   }
 
   function showLoggedIn() {
-    console.log("in")
     console.log(user)
+    id('logout-btn').classList.remove('hidden');
+    id('login-btn').classList.add('hidden');
+    id('create-account-btn').classList.add('hidden');
   }
 
   function logInFailed() {
@@ -395,6 +397,7 @@
   if (strength) {
     let success = await createUser();
     if (success) {
+      showLoggedIn();
       console.log("User created successfully!");
     }
   }
@@ -431,6 +434,10 @@
  function logout() {
    if (user !== null) {
      user = null;
+     id('login-btn').classList.remove('hidden');
+     id('logout-btn').classList.add('hidden');
+     id('create-account-btn').classList.remove('hidden');
+     console.log(user)
    }
  }
 
