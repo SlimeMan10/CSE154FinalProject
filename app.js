@@ -31,7 +31,6 @@ app.post("/addProduct", async function(req, res) {
  let price = req.body.price;
  let stock = req.body.stock;
  let type = req.body.type;
- console.log(req.body);
  if (product_id && name && description && price && stock && type) {
    try {
      const query = "INSERT INTO Products (product_id, name, description, price, stock, type) VALUES (?, ?, ?, ?, ?, ?)";
@@ -40,7 +39,6 @@ app.post("/addProduct", async function(req, res) {
      await db.close();
      res.json({"message": "Product added successfully"});
    } catch (err) {
-     console.error("Database error:", err);
      res.status(SERVERERROR).json({"error": serverError});
    }
    //make sure you do not have any spaces in the form fields
@@ -153,7 +151,6 @@ app.get("/getProducts", async function(req, res) {
       await db.close();
       res.json(data);
     } catch (err) {
-      console.error("Error:", err);
       res.status(SERVERERROR).type('text').send(serverError);
     }
   } else {
@@ -174,7 +171,6 @@ app.get("/getAllProducts", async function(req, res) {
     await db.close();
     res.json(data);
   } catch (err) {
-    console.error("Error:", err);
     res.status(SERVERERROR).type('text').send(serverError);
   }
 });
@@ -237,7 +233,6 @@ app.post("/purchase", async function(req, res) {
       await db.close();
       res.json({ message: "Purchase successful", confirmationCode: confirmationCode });
     } catch (err) {
-      console.error("Error processing purchase:", err);
       res.status(SERVERERROR).json({ error: "An error occurred while processing the purchase" });
     }
   }
@@ -303,7 +298,6 @@ app.post("/review", async function(req, res) {
       await db.run("ROLLBACK");
       await db.close();
     }
-    console.error("Error adding review:", err);
     res.status(SERVERERROR).type("text").send(serverError);
   }
 });

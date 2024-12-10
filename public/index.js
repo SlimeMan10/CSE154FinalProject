@@ -12,38 +12,10 @@
       user = savedUser;
       showLoggedIn();
     }
-
     displayAllProducts();
     loginEvents();
     passwordEvents();
-
-    if (id('submit-payment-btn')) {
-      id('submit-payment-btn').addEventListener('click', async function() {
-        const cardHolder = id('card-holder').value.trim();
-        const cardNumber = id('card-number').value.trim();
-        const cardExpiry = id('card-expiry').value.trim();
-        const cardCVV = id('card-cvv').value.trim();
-        const billingAddress = id('billing-address').value.trim();
-    
-        if (!cardHolder || !cardNumber || !cardExpiry || !cardCVV || !billingAddress) {
-          showError('payment', 'Please fill out all payment fields.', false);
-          return;
-        }
-    
-        try {
-          await handlePurchase(currentProductId, currentProductPrice);
-    
-          id('payment-section').classList.add('hidden');
-          id('product-area').classList.remove('hidden');
-          id('all-products').classList.remove('hidden');
-          id('main-item-section').classList.remove('hidden');
-    
-          clearPaymentForm();
-        } catch (err) {
-          showError('payment', 'Failed to complete purchase. Please try again.', false);
-        }
-      });
-    }
+    paymentStuff();
 
     if(id('create-account-btn')) {
       id('create-account-btn').addEventListener('click', handleCreateAccountClick);
@@ -59,6 +31,159 @@
         getTransactions();
       });
     }
+
+    if (id('shop-all')) {
+      id('shop-all').addEventListener('click', function(event) {
+        event.preventDefault();
+        hideTransactions();
+        displayAllProducts();
+      });
+    }
+  }
+
+  function validateCardNumber(cardNumber) {
+    const cleanNumber = cardNumber.replace(/\D/g, '');
+    if (cleanNumber.length !== 16) {
+      return false;
+    }
+    return /^\d+$/.test(cleanNumber);
+  }
+
+  function checkExpiryFormat(expiry) {
+    return /^\d{2}\/\d{2}$/.test(expiry);
+  }
+
+  function validateCardExpiry(expiry) {
+    if (!checkExpiryFormat(expiry)) return false;
+    const [month, year] = expiry.split('/');
+    return checkExpiryDate(parseInt(month), parseInt(year));
+  }
+
+  function validateCVV(cvv) {
+    return /^\d{3}$/.test(cvv);
+  }
+
+  function handleCardNumberInput(event) {
+    const value = event.target.value.replace(/\D/g, '');
+    event.target.value = value.slice(0, 16);
+  }
+
+
+  function checkExpiryDate(month, year) {
+    const currentDate = new Date();
+    const currentFullYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth() + 1;
+
+    // Convert to numbers and add 2000 to get full year
+    const expiryMonth = parseInt(month);
+    const expiryYear = 2000 + parseInt(year);
+    // Basic validation
+    if (expiryMonth < 1 || expiryMonth > 12) {
+      return false;
+    }
+    const maxExpiry = 5;
+    // Check if card is expired
+    if (expiryYear < currentFullYear - maxExpiry) {
+      return false;
+    }
+    if (expiryYear === currentFullYear && expiryMonth > currentMonth) {
+      return false;
+    }
+
+    if (expiryYear > currentFullYear + 10) {
+      return false;
+    }
+    return true;
+  }
+
+  function handleExpiryInput(event) {
+    let value = event.target.value.replace(/\D/g, '');
+    if (value.length >= 2) {
+      let month = value.slice(0, 2);
+      const monthNum = parseInt(month);
+      if (monthNum > 12) {
+        month = '12';
+      } else if (monthNum < 1) {
+        month = '01';
+      } else if (monthNum < 10 && month.length === 2) {
+        month = '0' + monthNum;
+      }
+      value = month + (value.length > 2 ? '/' + value.slice(2, 4) : '');
+    }
+    event.target.value = value.slice(0, 5);
+  }
+
+  function handleCVVInput(event) {
+    const value = event.target.value.replace(/\D/g, '');
+    event.target.value = value.slice(0, 3);
+  }
+
+  function setupPaymentInputListeners() {
+    id('card-number').addEventListener('input', handleCardNumberInput);
+    id('card-expiry').addEventListener('input', handleExpiryInput);
+    id('card-cvv').addEventListener('input', handleCVVInput);
+  }
+
+  function validatePaymentFields(fields) {
+    const { cardHolder, cardNumber, cardExpiry, cardCVV, billingAddress } = fields;
+
+    if (!cardHolder || !cardNumber || !cardExpiry || !cardCVV || !billingAddress) {
+      showError('payment', 'Please fill out all payment fields.', false);
+      return false;
+    }
+
+    if (!validateCardNumber(cardNumber)) {
+      showError('payment', 'Please enter a valid 16-digit card number.', false);
+      return false;
+    }
+
+    if (!validateCardExpiry(cardExpiry)) {
+      showError('payment', 'Please enter a valid expiry date (MM/YY).', false);
+      return false;
+    }
+
+    if (!validateCVV(cardCVV)) {
+      showError('payment', 'Please enter a valid 3-digit CVV.', false);
+      return false;
+    }
+
+    return true;
+  }
+
+  async function handlePaymentSubmission(fields) {
+    try {
+      await handlePurchase(currentProductId, currentProductPrice);
+      id('payment-section').classList.add('hidden');
+      hideTransactions();
+      clearPaymentForm();
+    } catch (err) {
+      showError('payment', 'Failed to complete purchase. Please try again.', false);
+    }
+  }
+
+  function paymentStuff() {
+    setupPaymentInputListeners();
+
+    id('submit-payment-btn').addEventListener('click', async function() {
+      const fields = {
+        cardHolder: id('card-holder').value.trim(),
+        cardNumber: id('card-number').value.trim(),
+        cardExpiry: id('card-expiry').value.trim(),
+        cardCVV: id('card-cvv').value.trim(),
+        billingAddress: id('billing-address').value.trim()
+      };
+
+      if (validatePaymentFields(fields)) {
+        await handlePaymentSubmission(fields);
+      }
+    });
+  }
+
+  function hideTransactions() {
+    id('transaction-area').classList.add('hidden');
+    id('product-area').classList.remove('hidden');
+    id('all-products').classList.remove('hidden');
+    id('main-item-section').classList.remove('hidden');
   }
 
   function showError(containerId, message, isSuccess) {
@@ -91,7 +216,6 @@
 
     const mainSection = id('main-item-section');
     mainSection.parentNode.insertBefore(successDiv, mainSection.nextSibling);
-
   }
 
   function handleCreateAccountClick() {
@@ -113,6 +237,7 @@
     const category = id('category').value;
 
     if (searchInput || maxPrice || category) {
+      hideTransactions();
       displayAllWithSearchTerms();
     }
   }
@@ -335,7 +460,7 @@
       const form = new FormData();
       form.append("username", user);
       form.append("product_id", productId);
-      form.append("cost", price); 
+      form.append("cost", price);
 
       const response = await fetch("/purchase", {
         method: "POST",
@@ -402,82 +527,118 @@
         }
       }
     } catch (err) {
-      console.log('Error:', err);
       showError('review', 'Failed to submit review. Please try again.', false);
     }
   }
 
   function displayNoOrders() {
-    const transactionArea = id('transaction-area');
-    transactionArea.classList.remove('hidden');
-    transactionArea.innerHTML = '';
-  
+    const transactionContent = id('transaction-content');
+    transactionContent.innerHTML = '';
+
+    const heading = createPurchaseHeading();
+    transactionContent.appendChild(heading);
+
     const noOrdersDiv = gen('div');
     noOrdersDiv.textContent = 'No previous orders found.';
     noOrdersDiv.classList.add('no-products-message');
-    transactionArea.appendChild(noOrdersDiv);
+    transactionContent.appendChild(noOrdersDiv);
+
+    // Show the transaction area
+    id('transaction-area').classList.remove('hidden');
   }
-  
-  async function displayPreviousTransactions() {
-  try {
-    const response = await fetch("/transactions?username=" + user);
-    if (!response.ok) {
-      throw new Error("Failed to fetch transactions");
+
+  async function getTransactions() {
+    try {
+      const response = await fetch("/transactions?username=" + user);
+      if (!response.ok) {
+        throw new Error("Failed to fetch transactions");
+      }
+      const data = await response.json();
+      id('product-area').classList.add('hidden');
+      id('all-products').classList.add('hidden');
+      const list = gen('div');
+      list.classList.add('transaction-list');
+      displayPreviousTransactions(data, list);
+    } catch (err) {
+      showError('transactions', 'Failed to load transaction history. Please try again later.', false);
     }
+  }
 
-    const data = await response.json();
+  function displayPreviousTransactions(data, list) {
+    // Get the transaction content container
+    const transactionContent = id('transaction-content');
+    transactionContent.innerHTML = ''; // Clear existing content
 
-    id('product-area').classList.add('hidden');
-    id('all-products').classList.add('hidden');
-    id('main-item-section').classList.add('hidden');
+    // Create and append heading
+    const heading = createPurchaseHeading();
+    transactionContent.appendChild(heading);
 
-    const transactionArea = id('transaction-area');
-    transactionArea.classList.remove('hidden');
-    transactionArea.innerHTML = '';
+    // Add transaction list
+    list.classList.add('transaction-list');
 
+    // Show the transaction area first - moved outside of blocks
+    id('transaction-area').classList.remove('hidden');
+
+    if (data.length === 0) {
+      displayNoOrders();
+    } else {
+      for (let i = 0; i < data.length; i++) {
+        let order = data[i];
+        const orderDiv = createOrderDiv(order);
+
+        // Create order ID div and append it to orderDiv
+        const orderId = gen('div');
+        orderId.className = 'transaction-id';
+        orderId.textContent = `Order ID: ${order.order_id}`;
+        orderDiv.appendChild(orderId);
+        orderDiv.appendChild(createImage(order.name));
+
+        // Append other elements to orderDiv
+        orderDiv.appendChild(createProductName(order));
+        orderDiv.appendChild(createProductDescription(order));
+        orderDiv.appendChild(createProductPrice(order));
+
+        // Append completed orderDiv to list
+        list.appendChild(orderDiv);
+      }
+      // Append the list to transaction content
+      id('transaction-content').appendChild(list);
+    }
+  }
+
+  function createProductPrice(order) {
+    const price = gen('div');
+    price.className = 'transaction-price';
+    price.textContent = `Price: $${order.price}`;
+    return price;
+  }
+
+  function createProductDescription(order) {
+    const description = gen('div');
+    description.className = 'transaction-description';
+    description.textContent = `Description: ${order.description}`;
+    return description;
+  }
+
+  function createProductName(order) {
+    const productName = gen('div');
+    productName.className = 'transaction-name';
+    productName.textContent = `Product: ${order.name}`;
+    return productName;
+  }
+
+  function createOrderDiv(order) {
+    const orderDiv = gen('div');
+    orderDiv.className = 'transaction-item';
+    orderDiv.setAttribute('data-order-id', order.order_id);
+    return orderDiv;
+  }
+
+  function createPurchaseHeading() {
     const heading = gen('h3');
     heading.textContent = 'Purchase History';
-    transactionArea.appendChild(heading);
-
-    const list = gen('div');
-    list.className = 'transactions-list';
-
-    data.forEach(order => {
-      const orderDiv = gen('div');
-      orderDiv.className = 'transaction-item';
-
-      const orderId = gen('div');
-      orderId.className = 'transaction-id';
-      orderId.textContent = `Order ID: ${order.order_id}`;
-
-      const productName = gen('div');
-      productName.className = 'transaction-name';
-      productName.textContent = `Product: ${order.name}`;
-
-      const description = gen('div');
-      description.className = 'transaction-description';
-      description.textContent = `Description: ${order.description}`;
-
-      const price = gen('div');
-      price.className = 'transaction-price';
-      price.textContent = `Price: $${order.price}`;
-
-      orderDiv.appendChild(orderId);
-      orderDiv.appendChild(productName);
-      orderDiv.appendChild(description);
-      orderDiv.appendChild(price);
-      list.appendChild(orderDiv);
-    });
-
-    transactionArea.appendChild(list);
-
-  } catch (err) {
-    console.error(err);
-    showError('transactions', 'Failed to load transaction history. Please try again later.', false);
+    return heading;
   }
-}
-
-  
 
   async function displayAllProducts() {
     try {
@@ -502,7 +663,7 @@
     const productCard = gen('div');
     productCard.className = 'product-card';
 
-    let img = createImage(productName);
+    let image = createImage(productName);
     let nameDiv = createNameDiv(productName);
     let starsDiv = createStarDiv(averageReviews);
     let priceDiv = createPriceDiv(price);
@@ -511,7 +672,7 @@
       showProduct(productName);
     });
 
-    productCard.appendChild(img);
+    productCard.appendChild(image);
     productCard.appendChild(nameDiv);
     productCard.appendChild(starsDiv);
     productCard.appendChild(priceDiv);
@@ -772,39 +933,12 @@
     }
   }
 
-  async function getTransactions() {
-    try {
-      const response = await fetch("/transactions?username=" + user);
-      if (!response.ok) {
-        throw new Error("Failed to fetch transactions");
-      } else {
-        const data = await response.json();
-  
-        id('product-area').classList.add('hidden');
-        id('all-products').classList.add('hidden');
-        id('main-item-section').classList.add('hidden');
-  
-        if (data.length === 0) {
-          displayNoOrders();
-        } else {
-          displayPreviousTransactions(data);
-        }
-      }
-    } catch(err) {
-      showError('transactions', 'Failed to load transaction history. Please try again later.', false);
-    }
-  }
-
   function id(item) {
     return document.getElementById(item);
   }
 
   function qs(item) {
     return document.querySelector(item);
-  }
-
-  function qsa(item) {
-    return document.querySelectorAll(item);
   }
 
   function gen(item) {

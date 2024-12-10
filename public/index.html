@@ -11,7 +11,7 @@
             <h1>CutSupplements.com</h1>
             <!--Search bar and link bar-->
             <section id="group-section">
-                <a href="index.html">Shop All</a>
+                <a href="index.html" id="shop-all">Shop All</a>
                 <form id="search-bar">
                     <input type="search" class="search-input" placeholder="Search..." required>
                     <input type="number"
@@ -41,6 +41,7 @@
             </section>
             <section id="transaction-area" class="hidden">
                 <div id="transactions-error" class="error-message hidden"></div>
+                <div id="transaction-content"></div>
             </section>
         </main>
 
@@ -138,7 +139,7 @@
                             <input type="text"
                                    id="card-expiry"
                                    placeholder="MM/YY"
-                                   maxlength="5"
+                                   maxlength="6"
                                    required>
                         </div>
                         <div class="form-group">
