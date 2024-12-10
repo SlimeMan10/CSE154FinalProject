@@ -6,6 +6,9 @@
 
   window.addEventListener('load', init);
 
+  /**
+   * Initializes the application by setting up event listeners and displaying products.
+   */
   function init() {
     const savedUser = localStorage.getItem('username');
     if (savedUser) {
@@ -41,6 +44,11 @@
     }
   }
 
+  /**
+   * Validates a card number.
+   * @param {string} cardNumber - The card number to validate.
+   * @returns {boolean} - Returns true if the card number is valid, false otherwise.
+   */
   function validateCardNumber(cardNumber) {
     const cleanNumber = cardNumber.replace(/\D/g, '');
     if (cleanNumber.length !== 16) {
@@ -49,26 +57,51 @@
     return /^\d+$/.test(cleanNumber);
   }
 
+  /**
+   * Checks if the expiry date is in the correct format (MM/YY).
+   * @param {string} expiry - The expiry date to check.
+   * @returns {boolean} - Returns true if the expiry date is in the correct format, false otherwise.
+   */
   function checkExpiryFormat(expiry) {
     return /^\d{2}\/\d{2}$/.test(expiry);
   }
 
+  /**
+   * Validates a card expiry date.
+   * @param {string} expiry - The expiry date to validate (in the format MM/YY).
+   * @returns {boolean} - Returns true if the expiry date is valid, false otherwise.
+   */
   function validateCardExpiry(expiry) {
     if (!checkExpiryFormat(expiry)) return false;
     const [month, year] = expiry.split('/');
     return checkExpiryDate(parseInt(month), parseInt(year));
   }
 
+  /**
+   * Validates a CVV (Card Verification Value).
+   * @param {string} cvv - The CVV to validate.
+   * @returns {boolean} - Returns true if the CVV is valid, false otherwise.
+   */
   function validateCVV(cvv) {
     return /^\d{3}$/.test(cvv);
   }
 
+  /**
+   * Handles input events for the card number field.
+   * @param {Event} event - The input event.
+   */
   function handleCardNumberInput(event) {
     const value = event.target.value.replace(/\D/g, '');
     event.target.value = value.slice(0, 16);
   }
 
 
+  /**
+   * Checks if an expiry date is valid.
+   * @param {number} month - The expiry month (1-12).
+   * @param {number} year - The expiry year (four-digit year).
+   * @returns {boolean} - Returns true if the expiry date is valid, false otherwise.
+   */
   function checkExpiryDate(month, year) {
     const currentDate = new Date();
     const currentFullYear = currentDate.getFullYear();
@@ -96,6 +129,10 @@
     return true;
   }
 
+  /**
+   * Handles input events for the expiry date field.
+   * @param {Event} event - The input event.
+   */
   function handleExpiryInput(event) {
     let value = event.target.value.replace(/\D/g, '');
     if (value.length >= 2) {
@@ -113,17 +150,34 @@
     event.target.value = value.slice(0, 5);
   }
 
+  /**
+   * Handles input events for the CVV field.
+   * @param {Event} event - The input event.
+   */
   function handleCVVInput(event) {
     const value = event.target.value.replace(/\D/g, '');
     event.target.value = value.slice(0, 3);
   }
 
+  /**
+   * Sets up event listeners for payment input fields.
+   */
   function setupPaymentInputListeners() {
     id('card-number').addEventListener('input', handleCardNumberInput);
     id('card-expiry').addEventListener('input', handleExpiryInput);
     id('card-cvv').addEventListener('input', handleCVVInput);
   }
 
+  /**
+   * Validates payment fields.
+   * @param {Object} fields - The payment fields to validate.
+   * @param {string} fields.cardHolder - The cardholder name.
+   * @param {string} fields.cardNumber - The card number.
+   * @param {string} fields.cardExpiry - The card expiry date (in the format MM/YY).
+   * @param {string} fields.cardCVV - The card CVV.
+   * @param {string} fields.billingAddress - The billing address.
+   * @returns {boolean} - Returns true if all fields are valid, false otherwise.
+   */
   function validatePaymentFields(fields) {
     const { cardHolder, cardNumber, cardExpiry, cardCVV, billingAddress } = fields;
 
@@ -150,6 +204,11 @@
     return true;
   }
 
+  /**
+   * Handles the submission of a payment.
+   * @param {Object} fields - The payment fields.
+   * @throws {Error} - Throws an error if the purchase fails.
+   */
   async function handlePaymentSubmission(fields) {
     try {
       await handlePurchase(currentProductId, currentProductPrice);
@@ -161,6 +220,9 @@
     }
   }
 
+  /**
+   * Sets up event listeners and functionality for payment-related elements.
+   */
   function paymentStuff() {
     setupPaymentInputListeners();
 
@@ -179,6 +241,9 @@
     });
   }
 
+  /**
+   * Hides the transaction area and displays the product area.
+   */
   function hideTransactions() {
     id('transaction-area').classList.add('hidden');
     id('product-area').classList.remove('hidden');
@@ -186,6 +251,12 @@
     id('main-item-section').classList.remove('hidden');
   }
 
+  /**
+   * Shows an error message or success message.
+   * @param {string} containerId - The ID of the container element.
+   * @param {string} message - The error or success message.
+   * @param {boolean} isSuccess - Indicates whether it is a success message (true) or an error message (false).
+   */
   function showError(containerId, message, isSuccess) {
     const errorDiv = id(`${containerId}-error`);
     errorDiv.classList.remove('hidden');
@@ -197,12 +268,20 @@
     }
   }
 
+  /**
+   * Clears the error message for a specific container.
+   * @param {string} containerId - The ID of the container element.
+   */
   function clearError(containerId) {
     const errorDiv = id(`${containerId}-error`);
     errorDiv.classList.add('hidden');
     errorDiv.textContent = '';
   }
 
+  /**
+   * Displays a success message.
+   * @param {string} message - The success message to display.
+   */
   function displaySuccessMessage(message) {
     const oldMessage = id('global-success-message');
     if (oldMessage) {
@@ -218,6 +297,9 @@
     mainSection.parentNode.insertBefore(successDiv, mainSection.nextSibling);
   }
 
+  /**
+   * Handles the click event for the "Create Account" button.
+   */
   function handleCreateAccountClick() {
     if (id('login-username')) id('login-username').value = '';
     if (id('login-password')) id('login-password').value = '';
@@ -230,6 +312,10 @@
     id('account-section').classList.remove('hidden');
   }
 
+  /**
+   * Handles the search functionality.
+   * @param {Event} event - The search button click event.
+   */
   function handleSearch(event) {
     event.preventDefault();
     const searchInput = qs('#search-bar .search-input').value.trim();
@@ -242,6 +328,9 @@
     }
   }
 
+  /**
+   * Displays all products based on the provided search terms.
+   */
   async function displayAllWithSearchTerms() {
     const searchInput = qs('#search-bar .search-input').value.trim();
     const maxPrice = id('max-price').value.trim();
@@ -298,6 +387,10 @@
     }
   }
 
+  /**
+   * Shows the details of a specific product.
+   * @param {string} productName - The name of the product to display.
+   */
   async function showProduct(productName) {
     try {
       const response = await fetch('/getProducts?name=' + productName);
@@ -311,6 +404,10 @@
     }
   }
 
+  /**
+   * Displays a single product's details.
+   * @param {Object} item - The product data.
+   */
   function displayProducts(item) {
     const data = item[0];
     setupProductDisplay();
@@ -318,6 +415,9 @@
     id("product-area").appendChild(singleProductContainer);
   }
 
+  /**
+   * Sets up the product display area.
+   */
   function setupProductDisplay() {
     id("all-products").classList.add('hidden');
     const productArea = id("product-area");
@@ -325,6 +425,11 @@
     productArea.classList.remove('hidden');
   }
 
+/**
+   * Creates a container element for a single product.
+   * @param {Object} data - The product data.
+   * @returns {HTMLElement} - The created product container element.
+   */
   function createProductContainer(data) {
     const singleProductContainer = gen('div');
     singleProductContainer.className = 'single-product-container';
@@ -337,6 +442,11 @@
     return singleProductContainer;
   }
 
+  /**
+   * Appends basic information (image and name) to a product container.
+   * @param {HTMLElement} container - The product container element.
+   * @param {Object} data - The product data.
+   */
   function appendBasicInfo(container, data) {
     const img = createImage(data.name);
     const nameDiv = createNameDiv(data.name);
@@ -345,6 +455,11 @@
     container.appendChild(nameDiv);
   }
 
+  /**
+   * Appends product details (description, price, stock, rating) to a product container.
+   * @param {HTMLElement} container - The product container element.
+   * @param {Object} data - The product data.
+   */
   function appendProductDetails(container, data) {
     const descriptionDiv = createDescriptionDiv(data.description);
     const priceDiv = createPriceDiv(data.price);
@@ -357,6 +472,11 @@
     container.appendChild(ratingDiv);
   }
 
+  /**
+   * Creates a description div element.
+   * @param {string} description - The product description.
+   * @returns {HTMLElement} - The created description div element.
+   */
   function createDescriptionDiv(description) {
     const descriptionDiv = gen('div');
     descriptionDiv.className = 'product-description';
@@ -364,6 +484,11 @@
     return descriptionDiv;
   }
 
+  /**
+   * Creates a stock div element.
+   * @param {number} stock - The product stock quantity.
+   * @returns {HTMLElement} - The created stock div element.
+   */
   function createStockDiv(stock) {
     const stockDiv = gen('div');
     stockDiv.className = 'product-stock';
@@ -371,6 +496,11 @@
     return stockDiv;
   }
 
+  /**
+   * Appends interaction buttons (buy button and review section) to a product container.
+   * @param {HTMLElement} container - The product container element.
+   * @param {Object} data - The product data.
+   */
   function appendInteractionButtons(container, data) {
     const buyButton = createBuyButton(data.product_id, data.price);
     const reviewSection = createReviewSection(data.product_id);
@@ -379,6 +509,12 @@
     container.appendChild(reviewSection);
   }
 
+  /**
+   * Creates a buy button element.
+   * @param {string} productId - The product ID.
+   * @param {number} price - The product price.
+   * @returns {HTMLElement} - The created buy button element.
+   */
   function createBuyButton(productId, price) {
     const buyButton = gen('button');
     buyButton.textContent = 'Buy';
@@ -402,6 +538,11 @@
     return buyButton;
   }
 
+  /**
+   * Creates a review section element.
+   * @param {string} productId - The product ID.
+   * @returns {HTMLElement} - The created review section element.
+   */
   function createReviewSection(productId) {
     const reviewDiv = gen('div');
     reviewDiv.className = 'review-section';
@@ -417,6 +558,10 @@
     return reviewDiv;
   }
 
+  /**
+   * Creates a rating select element.
+   * @returns {HTMLElement} - The created rating select element.
+   */
   function createRatingSelect() {
     const select = gen('select');
     select.id = 'rating';
@@ -436,6 +581,12 @@
     return select;
   }
 
+  /**
+   * Creates a review button element.
+   * @param {string} productId - The product ID.
+   * @param {HTMLElement} select - The rating select element.
+   * @returns {HTMLElement} - The created review button element.
+   */
   function createReviewButton(productId, select) {
     const submitReview = gen('button');
     submitReview.textContent = 'Submit Review';
@@ -455,6 +606,12 @@
     return submitReview;
   }
 
+  /**
+   * Handles the purchase of a product.
+   * @param {string} productId - The product ID.
+   * @param {number} price - The product price.
+   * @throws {Error} - Throws an error if the purchase fails.
+   */
   async function handlePurchase(productId, price) {
     try {
       const form = new FormData();
@@ -486,6 +643,9 @@
     }
   }
 
+  /**
+   * Clears the payment form fields.
+   */
   function clearPaymentForm() {
     id('card-holder').value = '';
     id('card-number').value = '';
@@ -495,6 +655,10 @@
     clearError('payment');
   }
 
+  /**
+   * Creates an error div element.
+   * @returns {HTMLElement} - The created error div element.
+   */
   function createErrorDiv() {
     const errorDiv = gen('div');
     errorDiv.id = 'review-error';
@@ -502,6 +666,11 @@
     return errorDiv;
   }
 
+  /**
+   * Handles the submission of a product review.
+   * @param {string} productId - The product ID.
+   * @param {string} rating - The selected rating value.
+   */
   async function handleReviewSubmission(productId, rating) {
     try {
       const formData = new FormData();
@@ -531,6 +700,9 @@
     }
   }
 
+  /**
+   * Displays a message indicating no previous orders.
+   */
   function displayNoOrders() {
     const transactionContent = id('transaction-content');
     transactionContent.innerHTML = '';
@@ -547,6 +719,9 @@
     id('transaction-area').classList.remove('hidden');
   }
 
+  /**
+   * Retrieves the user's transaction history.
+   */
   async function getTransactions() {
     try {
       const response = await fetch("/transactions?username=" + user);
@@ -564,6 +739,11 @@
     }
   }
 
+  /**
+   * Displays the user's previous transactions.
+   * @param {Array} data - The transaction data.
+   * @param {HTMLElement} list - The transaction list element.
+   */
   function displayPreviousTransactions(data, list) {
     // Get the transaction content container
     const transactionContent = id('transaction-content');
@@ -606,6 +786,11 @@
     }
   }
 
+  /**
+   * Creates a product price div element for a transaction.
+   * @param {Object} order - The order data.
+   * @returns {HTMLElement} - The created product price div element.
+   */
   function createProductPrice(order) {
     const price = gen('div');
     price.className = 'transaction-price';
@@ -613,6 +798,11 @@
     return price;
   }
 
+  /**
+   * Creates a product description div element for a transaction.
+   * @param {Object} order - The order data.
+   * @returns {HTMLElement} - The created product description div element.
+   */
   function createProductDescription(order) {
     const description = gen('div');
     description.className = 'transaction-description';
@@ -620,6 +810,11 @@
     return description;
   }
 
+  /**
+   * Creates a product name div element for a transaction.
+   * @param {Object} order - The order data.
+   * @returns {HTMLElement} - The created product name div element.
+   */
   function createProductName(order) {
     const productName = gen('div');
     productName.className = 'transaction-name';
@@ -627,6 +822,11 @@
     return productName;
   }
 
+  /**
+   * Creates an order div element for a transaction.
+   * @param {Object} order - The order data.
+   * @returns {HTMLElement} - The created order div element.
+   */
   function createOrderDiv(order) {
     const orderDiv = gen('div');
     orderDiv.className = 'transaction-item';
@@ -634,12 +834,19 @@
     return orderDiv;
   }
 
+  /**
+   * Creates a purchase heading element.
+   * @returns {HTMLElement} - The created purchase heading element.
+   */
   function createPurchaseHeading() {
     const heading = gen('h3');
     heading.textContent = 'Purchase History';
     return heading;
   }
 
+  /**
+   * Displays all products.
+   */
   async function displayAllProducts() {
     try {
       const response = await fetch('/getAllProducts');
@@ -658,6 +865,12 @@
     }
   }
 
+  /**
+   * Renders a product card.
+   * @param {string} productName - The product name.
+   * @param {number} price - The product price.
+   * @param {number} averageReviews - The average review rating.
+   */
   function renderProduct(productName, price, averageReviews) {
     const productArea = id('product-area');
     const productCard = gen('div');
@@ -679,6 +892,11 @@
     productArea.appendChild(productCard);
   }
 
+  /**
+   * Creates a price div element for a product card.
+   * @param {number} price - The product price.
+   * @returns {HTMLElement} - The created price div element.
+   */
   function createPriceDiv(price) {
     const priceDiv = gen('div');
     priceDiv.className = 'price';
@@ -686,6 +904,11 @@
     return priceDiv;
   }
 
+  /**
+   * Creates a star rating div element for a product card.
+   * @param {number} averageReviews - The average review rating.
+   * @returns {HTMLElement} - The created star rating div element.
+   */
   function createStarDiv(averageReviews) {
     const starsDiv = gen('div');
     starsDiv.className = 'stars';
@@ -697,6 +920,11 @@
     return starsDiv;
   }
 
+  /**
+   * Creates a name div element for a product card.
+   * @param {string} productName - The product name.
+   * @returns {HTMLElement} - The created name div element.
+   */
   function createNameDiv(productName) {
     const nameDiv = gen('div');
     nameDiv.className = 'product-name';
@@ -708,6 +936,11 @@
     return nameDiv;
   }
 
+  /**
+   * Creates an image element for a product card.
+   * @param {string} productName - The product name.
+   * @returns {HTMLElement} - The created image element.
+   */
   function createImage(productName) {
     const imgName = productName.toLowerCase().replace(/\s+/g, '-');
     const img = gen('img');
@@ -717,6 +950,9 @@
     return img;
   }
 
+  /**
+   * Sets up event listeners for password-related elements.
+   */
   function passwordEvents() {
     id('create-password-input-form').addEventListener('input', function(event) {
       let password = event.target.value;
@@ -743,6 +979,10 @@
     });
   }
 
+  /**
+   * Verifies that the password matches the confirm password input.
+   * @returns {boolean} - Returns true if the passwords match, false otherwise.
+   */
   function verifyPassword() {
     const verify = id('verify-password-input').value;
     const password = id('create-password-input-form').value;
@@ -752,11 +992,17 @@
     return verify === password;
   }
 
+  /**
+   * Sets up event listeners for login-related elements.
+   */
   function loginEvents() {
     id('login-btn').addEventListener('click', handleLogin);
     id('logout-btn').addEventListener('click', logout);
   }
 
+  /**
+   * Handles the login process.
+   */
   function handleLogin() {
     handleLoginClick();
     id('submit-login-btn').addEventListener('click', async function() {
@@ -770,6 +1016,9 @@
     });
   }
 
+  /**
+   * Shows the logged-in state and displays the appropriate elements.
+   */
   function showLoggedIn() {
     id('logout-btn').classList.remove('hidden');
     id('login-btn').classList.add('hidden');
@@ -781,6 +1030,10 @@
     id('previous-transactions').classList.remove('hidden');
   }
 
+  /**
+   * Updates the stock display for a product after a purchase.
+   * @param {string} productId - The product ID.
+   */
   function updateStockDisplay(productId) {
     const productContainer = document.querySelector(`.single-product-container[data-product-id="${productId}"]`);
     if (productContainer) {
@@ -794,10 +1047,16 @@
     }
   }
 
+  /**
+   * Displays an error message for a failed login attempt.
+   */
   function logInFailed() {
     showError('login', 'Invalid username or password', false);
   }
 
+  /**
+   * Handles the login click event.
+   */
   function handleLoginClick() {
     if (id('username')) id('username').value = '';
     if (id('email')) id('email').value = '';
@@ -814,6 +1073,11 @@
 
   const minPasswordLength = 8;
 
+  /**
+   * Checks if a password is strong and displays appropriate error messages.
+   * @param {string} password - The password to check.
+   * @returns {boolean} - Returns true if the password is strong, false otherwise.
+   */
   function checkIfStrong(password) {
     const hasUpperCase = /[A-Z]/.test(password);
     const hasLowerCase = /[a-z]/.test(password);
@@ -839,6 +1103,10 @@
     return isValid;
   }
 
+  /**
+   * Creates a new user account.
+   * @returns {Promise<boolean>} - Returns a promise that resolves to true if the user was created successfully, false otherwise.
+   */
   async function createUser() {
     try {
       let username = id('username').value;
@@ -873,6 +1141,9 @@
     }
   }
 
+  /**
+   * Creates a new user account if the password is strong enough and matches the confirmation.
+   */
   async function createNewUser() {
     clearError('create-account');
     let password = id('create-password-input-form').value;
@@ -885,6 +1156,10 @@
     }
   }
 
+  /**
+   * Logs in the user with the provided credentials.
+   * @returns {Promise<boolean>} - Returns a promise that resolves to true if the login was successful, false otherwise.
+   */
   async function login() {
     clearError('login');
     let username = id('login-username').value;
@@ -922,6 +1197,9 @@
     }
   }
 
+  /**
+   * Logs out the user and updates the UI accordingly.
+   */
   function logout() {
     if (user !== null) {
       user = null;
@@ -933,14 +1211,29 @@
     }
   }
 
+  /**
+   * Retrieves an element by its ID.
+   * @param {string} item - The ID of the element.
+   * @returns {HTMLElement} - The element with the specified ID.
+   */
   function id(item) {
     return document.getElementById(item);
   }
 
+  /**
+   * Retrieves the first element that matches the specified CSS selector.
+   * @param {string} item - The CSS selector.
+   * @returns {HTMLElement} - The first element that matches the selector.
+   */
   function qs(item) {
     return document.querySelector(item);
   }
 
+  /**
+   * Creates a new element with the specified tag name.
+   * @param {string} item - The tag name of the element to create.
+   * @returns {HTMLElement} - The newly created element.
+   */
   function gen(item) {
     return document.createElement(item);
   }

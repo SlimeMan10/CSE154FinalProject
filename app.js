@@ -17,6 +17,10 @@ const serverError = 'An error occurred on the server. Try again later.';
 const USERERROR = 400;
 const SERVERERROR = 500;
 
+/**
+ * Retrieves a database connection.
+ * @returns {Promise<sqlite3.Database>} A promise that resolves to the database connection.
+ */
 async function getDBConnection() {
  const db = await sqlite.open({filename: 'store.db', driver: sqlite3.Database});
  return db;
@@ -54,7 +58,12 @@ app.post("/addProduct", async function(req, res) {
  }
 });
 
-//Additional Feature 4
+/**
+ * Creates a new user account.
+ * @param {object} req - The request object containing the user details.
+ * @param {object} res - The response object to send the result.
+ * @throws {Error} If an error occurs during the database operation.
+ */
 app.post("/newUser", async function(req, res) {
   let username = req.body.username;
   let password = req.body.password;
@@ -99,10 +108,20 @@ app.post("/newUser", async function(req, res) {
   }
 });
 
+/**
+ * Generates a random salt for password hashing.
+ * @returns {Buffer} The generated salt.
+ */
 function generateSalt() {
  return crypto.randomBytes(16);
 }
 
+/**
+ * Hashes a password using the provided salt.
+ * @param {string} password - The password to be hashed.
+ * @param {Buffer} salt - The salt to be used for hashing.
+ * @returns {Promise<Buffer>} A promise that resolves to the hashed password.
+ */
 function hashPassword(password, salt) {
  let hash = new Promise(function(resolve, reject) {
    crypto.pbkdf2(password, salt, 10000, 64, 'sha512', (err, derivedKey) => {
@@ -116,7 +135,12 @@ function hashPassword(password, salt) {
  return hash;
 }
 
-//Use /getProducts?name=__?type=___?,minPrice=?
+/**
+ * Retrieves products based on the provided filters.
+ * @param {object} req - The request object containing the filters.
+ * @param {object} res - The response object to send the result.
+ * @throws {Error} If an error occurs during the database operation.
+ */
 app.get("/getProducts", async function(req, res) {
   const name = req.query.name;
   const type = req.query.type;
@@ -158,7 +182,12 @@ app.get("/getProducts", async function(req, res) {
   }
 });
 
-//returns all the products, make sure to round when recieving it in index.js
+/**
+ * Retrieves all products from the database.
+ * @param {object} req - The request object.
+ * @param {object} res - The response object to send the result.
+ * @throws {Error} If an error occurs during the database operation.
+ */
 app.get("/getAllProducts", async function(req, res) {
   try {
     const db = await getDBConnection();
@@ -175,7 +204,12 @@ app.get("/getAllProducts", async function(req, res) {
   }
 });
 
-//feature 2
+/**
+ * Logs in a user with the provided credentials.
+ * @param {object} req - The request object containing the user credentials.
+ * @param {object} res - The response object to send the result.
+ * @throws {Error} If an error occurs during the database operation.
+ */
 app.post("/login", async function(req, res) {
   const username = req.body.username;
   const password = req.body.password;
@@ -206,7 +240,12 @@ app.post("/login", async function(req, res) {
   }
 });
 
-//Feature 4: User must be able to purchase a product
+/**
+ * Processes a product purchase.
+ * @param {object} req - The request object containing the purchase details.
+ * @param {object} res - The response object to send the result.
+ * @throws {Error} If an error occurs during the database operation.
+ */
 app.post("/purchase", async function(req, res) {
   const username = req.body.username;
   const product_id = req.body.product_id;
@@ -238,11 +277,20 @@ app.post("/purchase", async function(req, res) {
   }
 });
 
+/**
+ * Generates a unique confirmation code for a purchase.
+ * @returns {string} The generated confirmation code.
+ */
 function generateConfirmationCode() {
   return crypto.randomBytes(3).toString('hex').toUpperCase();
 }
 
-//User must be able to access all previous transactions
+/**
+ * Retrieves all previous transactions for a user.
+ * @param {object} req - The request object containing the username.
+ * @param {object} res - The response object to send the result.
+ * @throws {Error} If an error occurs during the database operation.
+ */
 app.get("/transactions", async function (req, res) {
   const username = req.query.username;
   if (!username) {
@@ -263,7 +311,12 @@ app.get("/transactions", async function (req, res) {
   }
 });
 
-//Additional Feature 1: any logged in user can give feedback on 1-5
+/**
+ * Adds a new product to the database.
+ * @param {object} req - The request object containing the product details.
+ * @param {object} res - The response object to send the result.
+ * @throws {Error} If an error occurs during the database operation.
+ */
 app.post("/review", async function(req, res) {
   const username = req.body.username;
   const product_id = req.body.product_id;
