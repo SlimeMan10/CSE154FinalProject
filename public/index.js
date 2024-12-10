@@ -5,6 +5,7 @@
  window.addEventListener('load', init);
 
  function init() {
+    displayAllProducts();
     console.log("Initiing")
     loginEvents();
     passwordEvents();
@@ -19,8 +20,31 @@
     }
   }
 
+  async function displayAllProducts() {
+    try {
+        const response = await fetch('/getAllProducts');
+        if (!response.ok) {
+            throw new Error();
+        }
+        let result = await response.json();
+        result.forEach(card => {
+            let name = card.name;
+            let price = card.price;
+            let averageReview;
+            if (card.average_rating == null) {
+              averageReview = 0;
+            } else {
+              averageReview = card.average_rating;
+            }
+            renderProduct(name, price, averageReview);
+        });
+    } catch (err) {
+        console.log("p");
+    }
+}
+
   /**
-   * This renders a product in the product-area div. 
+   * This renders a product in the product-area div.
    * @param {string} productName - Name of the product from the database (Will
    * be converted to lowercase AND have dashes in the name replace with spaces.
    * Also coverts to spaces)
@@ -36,18 +60,18 @@
       console.log(averageReviews - starCount)
       const starsText = (averageReviews - starCount >= 0.5) ?
           starEmoji.repeat(starCount) + "✨": starEmoji.repeat(starCount);
-  
+
       const imgName = productName.toLowerCase().replace(/\s+/g, '-');
       const imgSrc = `./imgs/${imgName}.jpg`;
-  
+
       const productDiv = document.createElement('div');
       productDiv.className = 'product-card';
-  
+
       const img = document.createElement('img');
       img.src = imgSrc;
       img.alt = productName;
       img.className = "product-image"
-  
+
       const nameDiv = document.createElement('div');
       nameDiv.className = 'product-name';
       productName = productName
@@ -113,13 +137,14 @@
     }
   }
 
+  /*
   renderProduct("Creatine", 15.96, 4.7);
   renderProduct("protein-powder", 24.99, 3);
   renderProduct("protein-powder", 24.99, 3.6);
   renderProduct("protein-powder", 24.99, 3.4);
   renderProduct("protein-powder", 24.99, 3.7);
   renderProduct("protein-powder", 24.99, 3.9);
-
+  */
   function passwordEvents() {
     // Real-time password strength checking
     id('create-password-input-form').addEventListener('input', function(event) {

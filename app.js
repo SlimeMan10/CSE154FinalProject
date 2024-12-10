@@ -170,7 +170,7 @@ app.get("/getAllProducts", async function(req, res) {
     const db = await getDBConnection();
     const query = "SELECT p.product_id, p.name, p.description, p.price, p.stock, p.image, p.type, r.average_rating, r.num_ratings " +
                   "FROM Products p " +
-                  "JOIN Reviews r ON r.product_id = p.product_id " +
+                  "LEFT JOIN Reviews r ON r.product_id = p.product_id " +
                   "GROUP BY p.product_id";
     const data = await db.all(query);
     await db.close();
