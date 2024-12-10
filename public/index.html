@@ -41,9 +41,10 @@
         </main>
 
         <footer>
-            <section hidden id="account-section">
+            <section id="account-section" class="hidden">
                 <div id="testing-section" class="testing-container">
                     <h3>Create an account!</h3>
+                    <div id="create-account-error" class="error-message hidden"></div>
                     <div class="password-requirements">
                         <h4>Password must contain:</h4>
                         <ul id="password-checklist">
@@ -91,6 +92,7 @@
             <section id="login-section" class="hidden">
                 <div id="login-container" class="testing-container">
                     <h3>Login to your account</h3>
+                    <div id="login-error" class="error-message hidden"></div>
                     <form id="login-form">
                         <div class="form-group">
                             <input type="text"
@@ -106,6 +108,50 @@
                         </div>
                         <button type="button"
                                 id="submit-login-btn">Login</button>
+                    </form>
+                </div>
+            </section>
+
+            <section id="payment-section" class="hidden">
+                <div id="payment-container" class="testing-container">
+                    <h3>Complete Purchase</h3>
+                    <div id="payment-error" class="error-message hidden"></div>
+                    <form id="payment-form">
+                        <div class="form-group">
+                            <input type="text"
+                                   id="card-holder"
+                                   placeholder="Cardholder Name"
+                                   required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text"
+                                   id="card-number"
+                                   placeholder="Card Number"
+                                   maxlength="16"
+                                   required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text"
+                                   id="card-expiry"
+                                   placeholder="MM/YY"
+                                   maxlength="5"
+                                   required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text"
+                                   id="card-cvv"
+                                   placeholder="CVV"
+                                   maxlength="3"
+                                   required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text"
+                                   id="billing-address"
+                                   placeholder="Billing Address"
+                                   required>
+                        </div>
+                        <button type="button"
+                                id="submit-payment-btn">Complete Purchase</button>
                     </form>
                 </div>
             </section>
