@@ -377,6 +377,12 @@ main > div > div {
   margin-left: 15px;
 }
 
-[hidden] {
+.hidden {
   display: none !important;
+}
+
+.no-products-message {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 1.2em;
 }

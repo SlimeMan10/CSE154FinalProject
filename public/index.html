@@ -14,9 +14,23 @@
         <a href="index.html">Shop All</a>
         <form id="search-bar">
           <input type="search" class="search-input" placeholder="Search..." required>
+
+          <input type="number"
+                 class="price-input"
+                 placeholder="Max Price"
+                 min="0"
+                 step="0.01"
+                 id="max-price">
+          <select id="category" name="category">
+            <option value="">All Categories</option>
+            <option value="Muscle Building">Muscle Building</option>
+            <option value="Weight Loss">Weight Loss</option>
+            <option value="Brain Function">Brain Function</option>
+          </select>
           <button type="submit" id="search-button">Search</button>
         </form>
         <a href="#" id="create-account-btn">Create Account</a>
+        <a href="login" id="login-btn">Login</a>
       </section>
     </header>
     <main id="main-item-section">
@@ -25,68 +39,6 @@
       </section>
     </main>
     <footer>
-      <!--
-      <h2>Join newsletter</h2>
-      <form id="newsletter">
-        <input type="text" id="newsletter-input" placeholder="name@gmail.com" required>
-        <button type="submit">Submit</button>
-      </form>
-      <section id="shop-all">
-        <h3>Shop</h3>
-        <a href="#">Shop All</a>
-        <a href="items.html">Product Type 1</a>
-        <a href="items.html">Product Type 2</a>
-        <a href="items.html">Product Type 3</a>
-      </section>
-      <section id="about-us">
-        <h3>J&H</h3>
-        <a href="#">About Us</a>
-        <a href="#">Policy</a>
-      </section>
-      <section id="support">
-        <h3>Support</h3>
-        <a href="#">Contact Us</a>
-        <a href="#">Track Order</a>
-        <a href="#">Returns</a>
-      </section>
-
-      <form id="auth-form">
-        <div class="form-group">
-          <input type="text" id="username" placeholder="Username" required>
-        </div>
-        <div class="form-group">
-          <input type="password" id="password" placeholder="Password" required>
-        </div>
-        <div class="form-group">
-          <input type="email" id="email" placeholder="Email" required>
-        </div>
-        <div class="form-buttons">
-          <button type="button" id="login-btn">Login</button>
-          <button type="button" id="create-user-btn">Create Account</button>
-        </div>
-      </form>
-
-      <div id="review-section" data-current-product="1">
-        <h3>Add Review</h3>
-        <form>
-          <div>
-            <label for="rating">Rating:</label>
-            <select id="rating">
-              <option value="1">1 Star</option>
-              <option value="2">2 Stars</option>
-              <option value="3">3 Stars</option>
-              <option value="4">4 Stars</option>
-              <option value="5">5 Stars</option>
-            </select>
-          </div>
-          <div>
-            <label for="comment">Comment:</label>
-            <textarea id="comment"></textarea>
-          </div>
-          <button type="button" id="submit-review-btn">Submit Review</button>
-        </form>
-      </div>
-    -->
     <section hidden id="account-section">
       <div id="testing-section" class="testing-container">
         <h3>Create an account!</h3>

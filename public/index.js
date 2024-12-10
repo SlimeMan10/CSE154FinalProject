@@ -33,34 +33,61 @@
   function handleSearch(event) {
     event.preventDefault();
     const searchInput = qs('#search-bar .search-input').value.trim();
-    if (searchInput) {
-      displayAllWithSearchTerms(searchInput);
+    const maxPrice = id('max-price').value.trim();
+    const category = id('category').value;
+
+    // Remove the searchInput requirement - execute if any filter is used
+    if (searchInput || maxPrice || category) {
+      displayAllWithSearchTerms();
     }
   }
-  
-  async function displayAllWithSearchTerms(searchInput) {
+
+  async function displayAllWithSearchTerms() {
+    const searchInput = qs('#search-bar .search-input').value.trim();
+    const maxPrice = id('max-price').value.trim();
+    const category = id('category').value;
+
     try {
-      const response = await fetch('/getProducts?name=' + encodeURIComponent(searchInput));
+      // Build query string
+      let queryParams = [];
+      if (searchInput) {
+        queryParams.push('name=' + encodeURIComponent(searchInput));
+      }
+      if (maxPrice) {
+        queryParams.push('maxPrice=' + encodeURIComponent(maxPrice));
+      }
+      if (category) {
+        queryParams.push('type=' + encodeURIComponent(category));
+      }
+
+      const queryString = '/getProducts?' + queryParams.join('&');
+      const response = await fetch(queryString);
+
       if (!response.ok) {
         throw new Error("Could not fetch products");
       }
+
       let result = await response.json();
+
+      // Show relevant sections
       id('product-area').classList.remove('hidden');
       id('all-products').classList.remove('hidden');
       id('main-item-section').classList.remove('hidden');
       id('account-section').setAttribute('hidden', '');
       id('product-area').innerHTML = '';
-      id('all-products').textContent = `Results for "${searchInput}"`;
-  
+
+      // Create search results title
+      let searchTitle = 'Results';
+      if (searchInput) searchTitle += ` for "${searchInput}"`;
+      if (maxPrice) searchTitle += ` under $${maxPrice}`;
+      if (category) searchTitle += ` in ${category}`;
+      id('all-products').textContent = searchTitle;
+
       if (result.length === 0) {
         const noProductsDiv = gen('div');
         noProductsDiv.textContent = 'No products found.';
-        noProductsDiv.style.textAlign = 'center';
-        noProductsDiv.style.marginTop = '40px';
-        noProductsDiv.style.fontSize = '1.2em';
+        noProductsDiv.classList.add('no-products-message');
         id('product-area').appendChild(noProductsDiv);
-        id('product-area').classList.remove('hidden');
-        id('all-products').classList.remove('hidden');
       } else {
         result.forEach(card => {
           let name = card.name;
@@ -68,8 +95,6 @@
           let averageReview = card.average_rating || 0;
           renderProduct(name, price, averageReview);
         });
-        id('product-area').classList.remove('hidden');
-        id('all-products').classList.remove('hidden');
       }
     } catch (err) {
       console.log(err);
@@ -119,7 +144,7 @@
     id("all-products").classList.add('hidden');
 
     const productArea = id("product-area");
-    productArea.innerHTML = ''; 
+    productArea.innerHTML = '';
     productArea.classList.remove('hidden');
 
     const productName = data.name;
